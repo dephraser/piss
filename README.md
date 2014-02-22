@@ -13,13 +13,23 @@ Yes, really.
 Just ideas at the moment.
 
 ## Installation
-Nothing to install! Come back later.
+All you need to start is a [MongoDB](http://www.mongodb.org/) database. You can get one up and running quickly via `homebrew`. 
+
+Once your database is up and running: 
+
+  1. Clone the PISS repository and `cd` into it
+  2. Create a virtual environment with `virtualenv` and activate it
+  3. Install the requirements found in `requirements.txt` via `pip`
+  4. Start a local PISS server with `python piss.py`
+  
+Your server should now be available at [http://127.0.0.1:5000](http://127.0.0.1:5000). Running a production instance is out of the scope of this doc, but check out the [Flask](flask.pocoo.org) documentation for more information.
 
 ## Acknowledgements
 
 This app owes its existence to the following projects:
 
 * [Flask](http://flask.pocoo.org) by [Armin Ronacher](http://lucumr.pocoo.org/). A micro web development framework for Python.
+* [Eve](http://python-eve.org/) by [Nicola Iarocci](http://nicolaiarocci.com/). A REST API framework powered by Flask and MongoDB.
 
 ## Authors
 
