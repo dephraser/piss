@@ -1,13 +1,13 @@
 # GENERAL CONFIGURATION
-API_VERSION = '0.1'
+#API_VERSION = '0.1'
 #ID_FIELD = 'id'
 
 # Custom date format
-DATE_FORMAT = '%d %b %Y %H:%M:%S GMT'
+DATE_FORMAT = '%d %b %Y %H:%M:%S'
 
 # This turns off the links feature to save some bandwidth / processing. Comment
 # this out if you'd like to navigate the API via a browser
-HATEOAS = False
+HATEOAS = True
 
 # If you want to use the server as a standalone without breaking your client
 # app functionality, uncomment the line below
