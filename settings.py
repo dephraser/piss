@@ -28,13 +28,181 @@ posts = {
     'resource_methods': ['GET', 'POST'],
 
     'schema': {
-        # Schema definition, based on Cerberus grammar. Check the Cerberus project
-        # (https://github.com/nicolaiarocci/cerberus) for details.
-        'title': {
+        # Entity that published the post
+        'entity': {
             'type': 'string',
-            'minlength': 3,
-            'maxlength': 256,
             'required': True,
+        },
+        # Publishing time at the app level. If there are issues with the network
+        # this may be different from Eve's `created` date
+        'published_at': {
+            'type': 'datetime'
+        },
+        # The server automatically creates a `version` object that includes
+        # an `id`, which is the SHA-1 of the contents of the post, and the
+        # `published_at` date. However, an app may include a version field
+        # itself if it's specifically creating a new version of an existing
+        # post. 
+        'version': {
+            'type': 'dict',
+            'schema': {
+                'published_at': {
+                    'type': 'string'
+                },
+                'parents': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'dict',
+                        'schema': {
+                            'version': {
+                                'type': 'string',
+                                'required': True
+                            },
+                            'entity': {
+                                'type': 'string'
+                            },
+                            'post': {
+                                'type': 'string'
+                            }
+                        }
+                    }
+                },
+                'message': {
+                    'type': 'string'
+                }
+            }
+        },
+        # The entities and posts that this post is referencing
+        'links': {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    'entity': {
+                        'type': 'string'
+                    },
+                    'post': {
+                        'type': 'string'
+                    },
+                    'version': {
+                        'type': 'string'
+                    },
+                    'field': {
+                        'type': 'string'
+                    },
+                    'sub_string': {
+                        'type': 'dict',
+                        'schema': {
+                            'start': {
+                                'type': 'integer'
+                            },
+                            'end': {
+                                'type': 'integer'
+                            }
+                        }
+                    },
+                    'type': {
+                        'type': 'string'
+                    }
+                }
+            }
+        },
+        # Licenses that the post is released under
+        'licenses': {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    'name': {
+                        'type': 'string'
+                    },
+                    'url': {
+                        'type': 'string'
+                    }
+                }
+            }
+        },
+        # The post type URI
+        'type': {
+            'type': 'string',
+            'required': True
+        },
+        # The actual content of a post
+        'content': {
+            'type': 'dict'
+        },
+        # Documents attached to the post. Generally used to reference binary
+        # data
+        'attachments': {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': {
+                    # This should be the same format as `Content-Type` in HTTP
+                    'content_type': {
+                        'type': 'string'
+                    },
+                    'name': {
+                        'type': 'string'
+                    },
+                    # The SHA-1 hash of the attachment
+                    'digest': {
+                        'type': 'string'
+                    },
+                    'size': {
+                        'type': 'integer'
+                    }
+                }
+            }
+        },
+        # Application that published the post
+        'app': {
+            'type': 'dict',
+            'schema': {
+                # Post identifier of the application
+                'post': {
+                    'type': 'string'
+                },
+                'name': {
+                    'type': 'string'
+                },
+                'url': {
+                    'type': 'string'
+                }
+            }
+        },
+        # This object should be omitted if `public` is True
+        'permissions': {
+            'type': 'dict',
+            'schema': {
+                'public': {
+                    'type': 'boolean'
+                },
+                # List of groups that are permitted access
+                'groups': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'dict',
+                        'schema': {
+                            'name': {
+                                'type': 'string'
+                            },
+                            # Post identifier of the group
+                            'post': {
+                                'type': 'string',
+                                'required': True
+                            }
+                        }
+                    }
+                },
+                # List of entities that are permitted to access
+                'entities': {
+                    'type': 'list',
+                    'schema': {
+                        'type': 'string'
+                    }
+                }
+            }
         }
     }
 }
