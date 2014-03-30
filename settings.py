@@ -3,7 +3,7 @@
 #ID_FIELD = 'id'
 
 # Custom date format
-DATE_FORMAT = '%d %b %Y %H:%M:%S'
+# DATE_FORMAT = '%d %b %Y %H:%M:%S'
 
 # This turns off the links feature to save some bandwidth / processing. Comment
 # this out if you'd like to navigate the API via a browser
@@ -33,10 +33,11 @@ posts = {
             'type': 'string',
             'required': True,
         },
-        # Publishing time at the app level. If there are issues with the network
-        # this may be different from Eve's `created` date
+        # Publishing time at the app level. Number of milliseconds since the
+        # UNIX epoch. If there are issues with the network this may be
+        # different from Eve's `created` date
         'published_at': {
-            'type': 'datetime'
+            'type': 'integer'
         },
         # The server automatically creates a `version` object that includes
         # an `id`, which is the SHA-1 of the contents of the post, and the
