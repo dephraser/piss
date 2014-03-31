@@ -48,7 +48,7 @@ posts = {
             'type': 'dict',
             'schema': {
                 'published_at': {
-                    'type': 'string'
+                    'type': 'integer'
                 },
                 'parents': {
                     'type': 'list',
