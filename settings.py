@@ -40,10 +40,10 @@ posts = {
             'type': 'integer'
         },
         # The server automatically creates a `version` object that includes
-        # an `id`, which is the SHA-1 of the contents of the post, and the
-        # `published_at` date. However, an app may include a version field
-        # itself if it's specifically creating a new version of an existing
-        # post. 
+        # an `id`, which is the hex-encoded first 256 bits of the SHA-512 of
+        # the contents of the post, and the `published_at` date. However, an
+        # app may include a version field itself if it's specifically
+        # creating a new version of an existing post.
         'version': {
             'type': 'dict',
             'schema': {
@@ -146,7 +146,8 @@ posts = {
                     'name': {
                         'type': 'string'
                     },
-                    # The SHA-1 hash of the attachment
+                    # The hex-encoded first 256 bits of the SHA-512 of the 
+                    # attachment
                     'digest': {
                         'type': 'string'
                     },

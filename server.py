@@ -7,9 +7,10 @@ settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'setti
 
 def before_insert(resource, documents):
     for document in documents:
-        hasher = hashlib.sha1()
+        hasher = hashlib.sha512()
         hasher.update(str(document))
-        digest = hasher.hexdigest()
+        # Hex-encoded first 256 bits of the SHA-512
+        digest = hex(int(hasher.hexdigest(), 16) >> 256)
         if not 'version' in document.keys():
             document['version'] = {}
         document['version']['id'] = digest
