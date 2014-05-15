@@ -1,6 +1,6 @@
 # PISS
 
-**P**ersonal **I**nformation **S**torage and **S**yndication
+<strong>P</strong>ersonal <strong>I</strong>nformation <strong>S</strong>torage and <strong>S</strong>yndication
 
 Increasingly, our digital selves are spread out across a myriad of social networks and there is no central repository of the things that interest you. **PISS** aims to change that. This project borrows many ideas from [IndieWebCamp](http://indiewebcamp.com/) and [Tantek Çelik](http://tantek.com/), but tries not to hold them as dogma.
 
