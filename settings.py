@@ -211,6 +211,7 @@ posts = {
 
 DOMAIN = {
     'posts': posts,
+    'opp': posts
 }
 
 # API OPERATIONS
