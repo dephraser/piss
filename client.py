@@ -10,7 +10,7 @@ def get_index():
     
 @app.after_request
 def process_response(response):
-    response.headers['X-UA-Compatible'] = 'IE=edge,chrome=1'
+    response.headers['X-UA-Compatible'] = 'IE=edge'
     return response
 
 if __name__ == '__main__':
