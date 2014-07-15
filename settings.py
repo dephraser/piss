@@ -236,4 +236,4 @@ MONGO_PORT = 27017
 # an `eve` database in Mongo
 #MONGO_USERNAME = 'user'
 #MONGO_PASSWORD = 'user'
-#MONGO_DBNAME = 'isisapp'
+MONGO_DBNAME = 'piss'
