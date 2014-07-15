@@ -27,7 +27,13 @@
 			<h1 class="ui dividing header">{{ config['SITE_NAME'] }}</h1>
 		</header>
 		<p>There's not much here yet.</p>
-	    
+	    {% if 'PROFILES' in config %}
+        <ul>
+            {% for profile in config['PROFILES'] %}
+            <li><a href="{{ profile['url'] }}" rel="me">{{ profile['service'] }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
 	</section>
 </body>
 </html>
