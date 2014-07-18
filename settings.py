@@ -28,7 +28,8 @@ posts = {
     'resource_methods': ['GET', 'POST'],
 
     'schema': {
-        # Entity that published the post
+        # Entity that published the post. This will be an ID that refers to an
+        # entities endpoint
         'entity': {
             'type': 'string',
             'required': True,
@@ -79,29 +80,30 @@ posts = {
             'schema': {
                 'type': 'dict',
                 'schema': {
+                    # Refers to the ID of the entity
                     'entity': {
                         'type': 'string'
                     },
+                    'url': {
+                        'type': 'string'
+                    },
+                    # Refers to the ID of the OPP if the entity isn't self
                     'post': {
                         'type': 'string'
                     },
                     'version': {
                         'type': 'string'
                     },
+                    # Name of the `content` key in OPP
                     'field': {
                         'type': 'string'
                     },
                     'sub_string': {
-                        'type': 'dict',
-                        'schema': {
-                            'start': {
-                                'type': 'integer'
-                            },
-                            'end': {
-                                'type': 'integer'
-                            }
-                        }
+                        'type': 'string'
                     },
+                    # In contrast to the Tent specification, `type` refers to 
+                    # my intention with the link, i.e. in-reply-to, 
+                    # syndicated-to, etc., rather than the original post type.
                     'type': {
                         'type': 'string'
                     }
@@ -147,7 +149,8 @@ posts = {
                         'type': 'string'
                     },
                     # The hex-encoded first 256 bits of the SHA-512 of the 
-                    # attachment
+                    # attachment. This is used as an ID against the attachment
+                    # endpoint.
                     'digest': {
                         'type': 'string'
                     },
@@ -161,7 +164,7 @@ posts = {
         'app': {
             'type': 'dict',
             'schema': {
-                # Post identifier of the application
+                # Post identifier of the application at the entities endpoint
                 'post': {
                     'type': 'string'
                 },
@@ -189,7 +192,8 @@ posts = {
                             'name': {
                                 'type': 'string'
                             },
-                            # Post identifier of the group
+                            # Post identifier of the group. Group posts will 
+                            # live in the entities endpoint
                             'post': {
                                 'type': 'string',
                                 'required': True
@@ -208,6 +212,9 @@ posts = {
         }
     }
 }
+
+# TODO: Define entities endpoint. Similar to the Tent meta post type but with
+# more fields from the microformats2 h-card.
 
 DOMAIN = {
     'posts': posts,
