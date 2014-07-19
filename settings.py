@@ -71,6 +71,10 @@ posts = {
                 },
                 'message': {
                     'type': 'string'
+                },
+                # JSON Patch of the tokenized (by whitespace) string
+                'delta': {
+                    'type': 'dict'
                 }
             }
         },
