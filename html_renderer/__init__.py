@@ -1,7 +1,9 @@
+import os
 from flask import Flask, render_template
 
-app = Flask(__name__, static_url_path = "", instance_relative_config=True)
-app.config.from_pyfile('piss.cfg', silent=True)
+instance_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'instance')
+app = Flask(__name__, static_url_path = "", instance_path=instance_path)
+app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'), silent=True)
 
 @app.route('/')
 def get_index():

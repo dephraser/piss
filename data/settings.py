@@ -1,3 +1,5 @@
+import copy
+
 # GENERAL CONFIGURATION
 #API_VERSION = '0.1'
 #ID_FIELD = 'id'
@@ -217,12 +219,15 @@ posts = {
     }
 }
 
+opp = copy.deepcopy(posts)
+opp['item_title'] = 'opp'
+
 # TODO: Define entities endpoint. Similar to the Tent meta post type but with
 # more fields from the microformats2 h-card.
 
 DOMAIN = {
     'posts': posts,
-    'opp': posts
+    'opp': opp
 }
 
 # API OPERATIONS

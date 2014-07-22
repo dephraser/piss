@@ -1,18 +1,30 @@
-from werkzeug.wsgi import DispatcherMiddleware
-
 from flask import Flask
-from client import app as frontend
-from server import app as backend
+from data import app as data
+from html_renderer import app as html_renderer
 
-app = Flask( __name__ )
+class ContentTypeDispatcher(object):
+    """
+    Mount application based on content type
+    """
 
-# Flask allows us to assign different apps to different routes while taking
-# advantage of the same Python interpreter process. Here we're using the client
-# as a frontend accessible at the root of the domain. The backend is our API
-# server and it will be accessible at /api. 
-app.wsgi_app = DispatcherMiddleware(frontend, {
-    '/api':     backend
-})
+    def __init__(self, base_app, dispatched_app, content_types=None):
+        self.base = base_app
+        self.dispatched = dispatched_app
+        self.dispatch_types = content_types or []
+
+    def __call__(self, environ, start_response):
+        content_type = environ.get('CONTENT_TYPE', '').lower()
+        app = self.base
+        for dispatch_type in self.dispatch_types:
+            if content_type in dispatch_type:
+                app = self.dispatched
+                break
+        
+        return app(environ, start_response)
+
+app = Flask(__name__)
+
+app.wsgi_app = ContentTypeDispatcher(data, html_renderer, ['text/html'])
 
 if __name__ == '__main__':
     app.debug = True
