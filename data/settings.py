@@ -1,19 +1,6 @@
-import copy
-
-# GENERAL CONFIGURATION
-#API_VERSION = '0.1'
-#ID_FIELD = 'id'
-
-# Custom date format
-# DATE_FORMAT = '%d %b %Y %H:%M:%S'
-
 # This turns off the links feature to save some bandwidth / processing. Comment
 # this out if you'd like to navigate the API via a browser
 HATEOAS = True
-
-# If you want to use the server as a standalone without breaking your client
-# app functionality, uncomment the line below
-#URL_PREFIX = 'api'
 
 # ENDPOINT DEFINITIONS
 posts = {
@@ -93,7 +80,7 @@ posts = {
                     'url': {
                         'type': 'string'
                     },
-                    # Refers to the ID of the OPP if the entity isn't self
+                    # Refers to the ID of the post if it's stored internally
                     'post': {
                         'type': 'string'
                     },
@@ -107,9 +94,9 @@ posts = {
                     'sub_string': {
                         'type': 'string'
                     },
-                    # In contrast to the Tent specification, `type` refers to 
-                    # my intention with the link, i.e. in-reply-to, 
-                    # syndicated-to, etc., rather than the original post type.
+                    # The type of the post you're linking to. If the link is
+                    # external, this should be parsed from the context somehow
+                    # or simply set to 'external'
                     'type': {
                         'type': 'string'
                     }
@@ -170,7 +157,7 @@ posts = {
         'app': {
             'type': 'dict',
             'schema': {
-                # Post identifier of the application at the entities endpoint
+                # Entities ost identifier of the application
                 'post': {
                     'type': 'string'
                 },
@@ -199,7 +186,7 @@ posts = {
                                 'type': 'string'
                             },
                             # Post identifier of the group. Group posts will 
-                            # live in the entities endpoint
+                            # have an entities post type
                             'post': {
                                 'type': 'string',
                                 'required': True
@@ -219,15 +206,10 @@ posts = {
     }
 }
 
-opp = copy.deepcopy(posts)
-opp['item_title'] = 'opp'
-
-# TODO: Define entities endpoint. Similar to the Tent meta post type but with
-# more fields from the microformats2 h-card.
-
+# Everything is a post. It will be up to apps to determine what post types to 
+# query for and how to display them.
 DOMAIN = {
-    'posts': posts,
-    'opp': opp
+    'posts': posts
 }
 
 # API OPERATIONS
