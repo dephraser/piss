@@ -20,7 +20,7 @@ def get_resource(resource):
     if resource in eve_domain:
         return resource
     else:
-        return 404
+        return 'This page does not exist', 404
 
 @app.route('/<resource>/<item>')
 def get_item(resource, item):
@@ -29,7 +29,7 @@ def get_item(resource, item):
         r = eve_client.get(request)
         return parse_response(r)
     else:
-        return 404
+        return 'This page does not exist', 404
 
 def parse_response(r):
     try:
@@ -44,6 +44,7 @@ def parse_response(r):
 @app.after_request
 def process_response(response):
     response.headers['X-UA-Compatible'] = 'IE=edge'
+    response.headers['Content-Security-Policy'] = "script-src 'self'"
     return response
 
 if __name__ == '__main__':
