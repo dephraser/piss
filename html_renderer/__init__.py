@@ -4,7 +4,7 @@ from flask import Flask, render_template
 from data import app as data
 
 instance_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'instance')
-app = Flask(__name__, static_url_path = "", instance_path=instance_path)
+app = Flask(__name__, instance_path = instance_path)
 app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'), silent=True)
 
 eve_client = data.test_client()
