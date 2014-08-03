@@ -44,7 +44,7 @@ def parse_response(r):
 @app.after_request
 def process_response(response):
     response.headers['X-UA-Compatible'] = 'IE=edge'
-    response.headers['Content-Security-Policy'] = "script-src 'self'"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; font-src 'self' https://themes.googleusercontent.com; frame-src 'none'; object-src 'none'"
     return response
 
 if __name__ == '__main__':
