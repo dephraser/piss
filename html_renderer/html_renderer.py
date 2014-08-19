@@ -26,8 +26,7 @@ def get_resource(resource):
 def get_item(resource, item):
     if resource in eve_domain:
         request = '/%s/%s' % (resource, item)
-        r = eve_client.get(request)
-        return parse_response(r)
+        return eve_client.get(request)
     else:
         return 'This page does not exist', 404
 
