@@ -67,6 +67,10 @@ posts = {
                 }
             }
         },
+        # Link or ID of the subscription that generated the post
+        'source': {
+            'type': 'string'
+        },
         # The entities and posts that this post is referencing
         'links': {
             'type': 'list',
@@ -206,10 +210,35 @@ posts = {
     }
 }
 
+types = {
+    'item_title': 'type',
+    'cache_control': 'max-age=10,must-revalidate',
+    'cache_expires': 10,
+    'resource_methods': ['GET', 'POST'],
+    
+    # Allow us to access type resources by name
+    'additional_lookup': {
+        'url': 'regex("[\w]+")',
+        'field': 'name'
+    },
+    'schema': {
+        'name': {
+            'type': 'string',
+            'required': True,
+            'unique': True
+        },
+        'schema': {
+            'type': 'dict',
+            'required': True
+        }
+    }
+}
+
 # Everything is a post. It will be up to apps to determine what post types to 
 # query for and how to display them.
 DOMAIN = {
-    'posts': posts
+    'posts': posts,
+    'types': types
 }
 
 # API OPERATIONS
