@@ -7,6 +7,9 @@ posts = {
     # 'title' tag used in item links. Defaults to the resource title minus
     # the final, plural 's' (works fine in most cases but not for 'people')
     'item_title': 'post',
+    
+    # This resource item endpoint will match a NewBase60 regex
+    'item_url': 'regex("[0-9A-HJ-NP-Z_a-km-z]{5,8}")',
 
     # We choose to override global cache-control directives for this resource.
     'cache_control': 'max-age=10,must-revalidate',
@@ -17,6 +20,7 @@ posts = {
     'resource_methods': ['GET', 'POST'],
 
     'schema': {
+        '_id': {'type': 'newbase60'},
         # Entity that published the post. This will be an ID that refers to an
         # entities endpoint
         'entity': {
@@ -240,6 +244,9 @@ DOMAIN = {
     'posts': posts,
     'types': types
 }
+
+# Enable document version control
+VERSIONING = True
 
 # API OPERATIONS
 # Enable reads (GET), inserts (POST) and DELETE for resources/collections
