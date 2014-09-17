@@ -84,16 +84,18 @@ class NewBase60Validator(Validator):
 
 def before_insert(resource, documents):
     for document in documents:
-        # Create version information
-        if not 'version' in document.keys():
-            digest = create_version_digest(document)
-            document['version'] = create_version_document(digest)
+        # Create version information, but save app version data if present
+        app_version = get_app_version(document)
+        digest = create_version_digest(document)
+        document['version'] = create_version_document(digest, app_version)
         
         # Create an ID for the document
         document['_id'] = str(NewBase60(current_time))
 
 def before_update(resource, updates, original):
-    # Create an updated version of the original *without* the `version` field
+    # Create an updated version of the original *without* the `version` field,
+    # but save app version data if present
+    app_version = get_app_version(updates)
     updated = original.copy()
     updated.update(updates)
     try:
@@ -104,7 +106,7 @@ def before_update(resource, updates, original):
     
     # Create version information and append it to the updates
     digest = create_version_digest(updated)
-    updates['version'] = create_version_document(digest)
+    updates['version'] = create_version_document(digest, app_version)
 
 def create_version_digest(document):
     hasher = hashlib.sha512()
@@ -112,12 +114,31 @@ def create_version_digest(document):
     # Hex-encoded first 256 bits of the SHA-512
     return hex(int(hasher.hexdigest(), 16) >> 256)
 
-def create_version_document(digest):
-    current_time = int(time.time())
+def create_version_document(digest, app_version):
     version_document = {}
     version_document['id'] = digest
-    version_document['published_at'] = current_time * 1000
+    
+    # The following values mirror the schema in settings.py
+    if 'published_at' in app_version:
+        version_document['published_at'] = app_version['published_at']
+    else:
+        current_time = int(time.time())
+        version_document['published_at'] = current_time * 1000
+    if 'parents' in app_version:
+        version_document['parents'] = app_version['parents']
+    if 'message' in app_version:
+        version_document['message'] = app_version['message']
+    if 'delta' in app_version:
+        version_document['delta'] = app_version['delta']
+    
     return version_document
+
+def get_app_version(document):
+    app_version = {}
+    if 'version' in document:
+        app_version = document['version']
+        del(document['version'])
+    return app_version
 
 app = Eve(settings=settings_file, 
           json_encoder=NewBase60Encoder, 
