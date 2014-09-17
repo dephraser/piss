@@ -20,7 +20,6 @@ posts = {
     'resource_methods': ['GET', 'POST'],
 
     'schema': {
-        '_id': {'type': 'newbase60'},
         # Entity that published the post. This will be an ID that refers to an
         # entities endpoint
         'entity': {
