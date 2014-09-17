@@ -83,18 +83,16 @@ class NewBase60Validator(Validator):
                         value)
 
 def before_insert(resource, documents):
-    current_time = int(time.time())
     for document in documents:
         # Create version information
         if not 'version' in document.keys():
             digest = create_version_digest(document)
-            document['version'] = create_version_document(digest, current_time)
+            document['version'] = create_version_document(digest)
         
         # Create an ID for the document
         document['_id'] = str(NewBase60(current_time))
 
 def before_update(resource, updates, original):
-    current_time = int(time.time())
     # Create an updated version of the original *without* the `version` field
     updated = original.copy()
     updated.update(updates)
@@ -106,7 +104,7 @@ def before_update(resource, updates, original):
     
     # Create version information and append it to the updates
     digest = create_version_digest(updated)
-    updates['version'] = create_version_document(digest, current_time)
+    updates['version'] = create_version_document(digest)
 
 def create_version_digest(document):
     hasher = hashlib.sha512()
@@ -114,7 +112,8 @@ def create_version_digest(document):
     # Hex-encoded first 256 bits of the SHA-512
     return hex(int(hasher.hexdigest(), 16) >> 256)
 
-def create_version_document(digest, current_time):
+def create_version_document(digest):
+    current_time = int(time.time())
     version_document = {}
     version_document['id'] = digest
     version_document['published_at'] = current_time * 1000
