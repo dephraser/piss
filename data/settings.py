@@ -18,6 +18,10 @@ posts = {
     # most global settings can be overridden at resource level. We're disabling
     # DELETE here.
     'resource_methods': ['GET', 'POST'],
+    
+    # This endpoint defaults to private access for all methods
+    'public_methods': [],
+    'public_item_methods': [],
 
     'schema': {
         # Entity that published the post. This will be an ID that refers to an
@@ -256,6 +260,10 @@ RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 # Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of
 # individual items  (defaults to read-only item access).
 ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
+
+# Grant public access to only the GET methods
+PUBLIC_METHODS = ['GET']
+PUBLIC_ITEM_METHODS = ['GET']
 
 # DATABASE SETTINGS
 # Let's just use the local mongod instance. Edit as needed.

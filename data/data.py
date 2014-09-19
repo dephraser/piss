@@ -2,8 +2,15 @@ import os
 import time
 import hashlib
 from eve import Eve
+
 from eve.io.mongo import MongoJSONEncoder
 from eve.io.mongo import Validator
+
+from eve.auth import HMACAuth
+from flask import request
+
+import hawk
+from hawk.util import HawkException
 
 settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'settings.py')
 
@@ -63,7 +70,6 @@ class NewBase60Encoder(MongoJSONEncoder):
     encoding of NewBase60
     """
     def default(self, obj):
-        print isinstance(obj, NewBase60)
         if isinstance(obj, NewBase60):
             return str(obj)
         else:
@@ -140,9 +146,54 @@ def get_app_version(document):
         del(document['version'])
     return app_version
 
+class HawkAuth(HMACAuth):
+    def check_auth(self, http_auth, host, port, url, data, allowed_roles, resource, method):
+        req = {
+            'method': method,
+            'url': url,
+            'host': host,
+            'port': port,
+            'headers': {
+                'authorization': http_auth
+            }
+        }
+        # Look up from DB or elsewhere
+        credentials = {
+            'dh37fgj492je': {
+                'id': 'dh37fgj492je',
+                'algorithm': 'sha256',
+                'key': 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn'
+            }
+        }
+        server = hawk.Server(req, lambda cid: credentials[cid])
+        
+        try:
+            artifacts = server.authenticate({})
+        except KeyError:
+            pass
+        except HawkException:
+            return False
+        
+        return True
+    
+    def authorized(self, allowed_roles, resource, method):
+        http_auth = request.headers.get('Authorization')
+        host = request.environ['HTTP_HOST']
+        port = ''
+        if ':' in host:
+            host, port = request.environ['HTTP_HOST'].split(':')
+        
+        if http_auth and 'Hawk' in http_auth:
+            return self.check_auth(http_auth, host, port, request.url,
+                                        request.get_data(), allowed_roles,
+                                        resource, method)
+        else:
+            return False
+
 app = Eve(settings=settings_file, 
           json_encoder=NewBase60Encoder, 
-          validator=NewBase60Validator)
+          validator=NewBase60Validator,
+          auth=HawkAuth)
 app.on_insert += before_insert
 app.on_update += before_update
 
