@@ -1,1 +1,1 @@
-from html_renderer import app
+from html_renderer import HTML_Renderer, HTML_STATIC_FOLDER
