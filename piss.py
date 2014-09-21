@@ -150,7 +150,8 @@ def pre_posts_get_callback(request, lookup):
     find only public posts.
     '''
     http_auth = request.headers.get('Authorization')
-    if not http_auth or not 'Hawk' in http_auth:
+    bewit_query = request.args.get('bewit')
+    if not http_auth and not bewit_query:
         lookup['permissions'] = {'public': True}
 
 class HawkAuth(HMACAuth):
@@ -172,29 +173,40 @@ class HawkAuth(HMACAuth):
                 'key': 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn'
             }
         }
+        options = {}
         server = hawk.Server(req, lambda cid: credentials[cid])
         
         try:
-            artifacts = server.authenticate({})
+            if url.find('bewit=') == -1:
+                artifacts = server.authenticate(options)
+            else:
+                return server.authenticate_bewit(options)
         except KeyError:
             pass
         except HawkException:
             return False
         
         return True
-    
+
     def authorized(self, allowed_roles, resource, method):
         http_auth = request.headers.get('Authorization')
+        if not http_auth:
+            http_auth = ''
         host = request.environ['HTTP_HOST']
         port = ''
         if ':' in host:
             host, port = request.environ['HTTP_HOST'].split(':')
         
-        if http_auth and 'Hawk' in http_auth:
+        bewit_query = request.args.get('bewit')
+        if http_auth or bewit_query:
             return self.check_auth(http_auth, host, port, request.url,
                                         request.get_data(), allowed_roles,
                                         resource, method)
         else:
+            # Return true for `GET` requests. This will be picked up by
+            # `pre_posts_get_callback` to set the lookup to only public posts
+            if method == 'GET':
+                return True
             return False
 
 # Grab the paths for the Eve settings file and the instance folder

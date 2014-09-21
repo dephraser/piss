@@ -14,7 +14,11 @@ posts = {
     # We choose to override global cache-control directives for this resource.
     'cache_control': 'max-age=10,must-revalidate',
     'cache_expires': 10,
-
+    
+    # This endpoint defaults to private access for all methods
+    'public_methods': [],
+    'public_item_methods': [],
+    
     'schema': {
         # Entity that published the post. This will be an ID that refers to an
         # entities endpoint
