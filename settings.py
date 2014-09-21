@@ -15,14 +15,6 @@ posts = {
     'cache_control': 'max-age=10,must-revalidate',
     'cache_expires': 10,
 
-    # most global settings can be overridden at resource level. We're disabling
-    # DELETE here.
-    'resource_methods': ['GET', 'POST'],
-    
-    # This endpoint defaults to private access for all methods
-    'public_methods': [],
-    'public_item_methods': [],
-
     'schema': {
         # Entity that published the post. This will be an ID that refers to an
         # entities endpoint
@@ -255,15 +247,15 @@ VERSIONING = True
 # Enable reads (GET), inserts (POST) and DELETE for resources/collections
 # (if you omit this line, the API will default to ['GET'] and provide
 # read-only access to the endpoint).
-RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
+RESOURCE_METHODS = ['GET', 'POST']
 
 # Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of
 # individual items  (defaults to read-only item access).
 ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 
 # Grant public access to only the GET methods
-PUBLIC_METHODS = ['GET']
-PUBLIC_ITEM_METHODS = ['GET']
+PUBLIC_METHODS = ['GET', 'HEAD']
+PUBLIC_ITEM_METHODS = ['GET', 'HEAD']
 
 # DATABASE SETTINGS
 # Let's just use the local mongod instance. Edit as needed.

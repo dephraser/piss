@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    <!-- Standard Meta -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Site Properities -->
+    <title>{% block title %}{% endblock %} - {{ config['SITE_NAME'] }}</title>
+	<meta name="description" content="{% block description %}A Personal Information Storage and Syndication website{% endblock %}">
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/semantic.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+    {% block header %}{% endblock %}
+</head>
+<body>
+    <!--[if lt IE 7]>
+        <p class="ui message">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+	<section id="piss-app">
+		{% block body %}{% endblock %}
+	</section>
+    {% block footer %}{% endblock %}
+</body>
+</html>
