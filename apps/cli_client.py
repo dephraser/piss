@@ -1,5 +1,7 @@
 import requests
 import json
+import os
+import ConfigParser
 from hawk.client import header as hawk_header
 from hawk.client import authenticate as hawk_authenticate
 from hawk.client import get_bewit as hawk_get_bewit
@@ -8,11 +10,16 @@ def main(url, method, data):
     """
     Access and modify data from a PISS server on the command line.
     """
-    credentials = {
-        'id': 'dh37fgj492je',
-        'key': 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-        'algorithm': 'sha256'
-    }
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    config_path = os.path.join(os.path.dirname(current_dir), 'instance/cli_client.cfg')
+    
+    try:
+        config = AsDictParser()
+        parsed_files = config.read(config_path)
+        credentials = config.as_dict()['credentials']
+    except Exception as e:
+        print("Error reading configuration file.")
+        return False
     
     header = hawk_header(url, method, { 'credentials': credentials })
     headers = get_request_headers(header['field'])
@@ -82,6 +89,17 @@ def get_etag(url, headers):
         return False
     
     return etag
+
+class AsDictParser(ConfigParser.ConfigParser):
+    '''
+    Allows you to output ConfigParser objects as a dict.
+    '''
+    def as_dict(self):
+        d = dict(self._sections)
+        for k in d:
+            d[k] = dict(self._defaults, **d[k])
+            d[k].pop('__name__', None)
+        return d
 
 if __name__ == '__main__':
     from argparse import ArgumentParser

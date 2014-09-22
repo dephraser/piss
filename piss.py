@@ -154,6 +154,26 @@ def pre_posts_get_callback(request, lookup):
     if not http_auth and not bewit_query:
         lookup['permissions'] = {'public': True}
 
+def get_credentials_from_post_id(cid):
+    '''
+    Retrieve the credentials post for the given ID and convert it to
+    a format suitable for Hawk authentication
+    '''
+    posts = app.data.driver.db['posts']
+    lookup = {'_id': cid}
+    cred_post = posts.find_one(lookup)
+    if cred_post is None:
+        return False
+    if cred_post.get('content') is None:
+        return False
+    if cred_post['content'].get('hawk_algorithm') is None or cred_post['content'].get('hawk_key') is None:
+        return False
+    return {
+        'id': str(cid),
+        'algorithm': str(cred_post['content']['hawk_algorithm']),
+        'key': str(cred_post['content']['hawk_key'])
+    }
+
 class HawkAuth(HMACAuth):
     def check_auth(self, http_auth, host, port, url, data, allowed_roles, resource, method):
         req = {
@@ -165,16 +185,8 @@ class HawkAuth(HMACAuth):
                 'authorization': http_auth
             }
         }
-        # Look up from DB or elsewhere
-        credentials = {
-            'dh37fgj492je': {
-                'id': 'dh37fgj492je',
-                'algorithm': 'sha256',
-                'key': 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn'
-            }
-        }
+        server = hawk.Server(req, get_credentials_from_post_id)
         options = {}
-        server = hawk.Server(req, lambda cid: credentials[cid])
         
         try:
             if url.find('bewit=') == -1:
@@ -182,7 +194,7 @@ class HawkAuth(HMACAuth):
             else:
                 return server.authenticate_bewit(options)
         except KeyError:
-            pass
+            return False
         except HawkException:
             return False
         
