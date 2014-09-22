@@ -5,7 +5,7 @@ Flask==0.10.1
 Flask-PyMongo==0.3.0
 Jinja2==2.7.3
 MarkupSafe==0.23
-PyHawk==0.1.3
+-e git://github.com/jenmontes/PyHawk.git@develop#egg=PyHawk-origin/develop
 Werkzeug==0.9.6
 gunicorn==18.0
 itsdangerous==0.24
