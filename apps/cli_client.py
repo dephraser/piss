@@ -13,10 +13,8 @@ def main(url, method, data):
         'key': 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
         'algorithm': 'sha256'
     }
-    ext = ''
     
-    header = hawk_header(url, method, { 'credentials': credentials,
-                                         'ext': ext })
+    header = hawk_header(url, method, { 'credentials': credentials })
     headers = get_request_headers(header['field'])
     
     if method == 'GET':
@@ -27,19 +25,18 @@ def main(url, method, data):
         res = requests.post(url, data=data, headers=headers)
     elif method == 'PATCH':
         etag = get_etag(url, headers)
-        header = hawk_header(url, method, { 'credentials': credentials,
-                                             'ext': ext })
+        header = hawk_header(url, method, { 'credentials': credentials })
         headers = get_request_headers(header['field'], etag)
         res = requests.patch(url, data=data, headers=headers)
     elif method == 'DELETE':
         etag = get_etag(url, headers)
-        header = hawk_header(url, method, { 'credentials': credentials,
-                                             'ext': ext })
+        header = hawk_header(url, method, { 'credentials': credentials })
         headers = get_request_headers(header['field'], etag)
         res = requests.delete(url, headers=headers)
     elif method == 'BEWIT':
         print("Bewit URL: ")
         print(url + '?bewit=' + hawk_get_bewit(url, {'credentials': credentials, 'ttl_sec': 60 * 1000}))
+        return True
     else:
         print('Method not supported.')
         return False
@@ -47,7 +44,10 @@ def main(url, method, data):
     if not res.status_code in (200, 201):
         print 'Authorized request (FAILED) status=' + str(res.status_code)
     
-    print(json.dumps(json.loads("".join(res.text)), sort_keys=True, indent=4))
+    try:
+        print(json.dumps(json.loads("".join(res.text)), sort_keys=True, indent=4))
+    except Exception as e:
+        print(res.text)
     
     response = {'headers': res.headers}
     if hawk_authenticate(response, credentials, header['artifacts'],

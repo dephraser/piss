@@ -192,14 +192,20 @@ class HawkAuth(HMACAuth):
         http_auth = request.headers.get('Authorization')
         if not http_auth:
             http_auth = ''
-        host = request.environ['HTTP_HOST']
-        port = ''
-        if ':' in host:
-            host, port = request.environ['HTTP_HOST'].split(':')
         
         bewit_query = request.args.get('bewit')
+        
         if http_auth or bewit_query:
-            return self.check_auth(http_auth, host, port, request.url,
+            url = request.environ['PATH_INFO']
+            if request.environ['QUERY_STRING']:
+                url += '?' + request.environ['QUERY_STRING']
+            
+            host = request.environ['HTTP_HOST']
+            port = ''
+            if ':' in host:
+                host, port = request.environ['HTTP_HOST'].split(':')
+            
+            return self.check_auth(http_auth, host, port, url,
                                         request.get_data(), allowed_roles,
                                         resource, method)
         else:
