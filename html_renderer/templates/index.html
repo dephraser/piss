@@ -2,13 +2,15 @@
     {% block title %}Home{% endblock %}
     {% block body %}
 		<header>
-			<h1 class="ui dividing header">{{ config['SITE_NAME'] }}</h1>
+			<h1 class="ui dividing header">{{ config['META_POST']['profile']['name'] }}</h1>
 		</header>
 		<p>There's not much here yet.</p>
-	    {% if 'PROFILES' in config %}
+	    {% if 'cards' in config['META_POST']['profile'] %}
         <ul>
-            {% for profile in config['PROFILES'] %}
-            <li><a href="{{ profile['url'] }}" rel="me">{{ profile['service'] }}</a></li>
+            {% for card in config['META_POST']['profile']['cards'] %}
+			{% if card['type'] == 'rel-me' %}
+            <li><a href="{{ card['datum'] }}" rel="me">{{ card['name'] }}</a></li>
+			{% endif %}
             {% endfor %}
         </ul>
         {% endif %}
