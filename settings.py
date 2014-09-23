@@ -19,6 +19,9 @@ posts = {
     'public_methods': [],
     'public_item_methods': [],
     
+    # Always return the type of the post after a successful `POST`
+    'extra_response_fields': ['type'],
+    
     'schema': {
         # Entity that published the post. This will be an ID that refers to an
         # entities endpoint

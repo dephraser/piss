@@ -1,6 +1,7 @@
 import os
 import time
 import hashlib
+import json
 from eve import Eve
 from eve.io.mongo import MongoJSONEncoder
 from eve.io.mongo import Validator
@@ -137,6 +138,27 @@ def before_insert(resource, documents):
                 }
             ]
 
+def after_posts_insert(request, payload):
+    '''
+    Callback to be executed after documents have been inserted into the 
+    database. Primarily used to change the response envelope depending on the
+    post type.
+    '''
+    meta_post = app.config.get('META_POST')
+    types_endpoint = meta_post['server']['urls']['types']
+    
+    # TODO: Code below needs to account for when the payload is a list
+    if payload.status_code == 201:
+        payload_data = json.loads(payload.get_data())
+        if payload_data['type'] == str(types_endpoint + "/app"):
+            payload_id = payload_data['_id']
+            app_post = get_post_by_id(payload_id)
+            app_links = app_post['links']
+            for link in app_links:
+                if link['type'] == str(types_endpoint + "/credentials"):
+                    payload.headers['Link'] = '<%s>; rel="%s"' % (link['url'], str(types_endpoint + "/credentials"))
+                    break
+
 def before_update(resource, updates, original):
     # Create an updated version of the original *without* the `version` field,
     # but save app version data if present
@@ -206,10 +228,8 @@ def get_credentials_from_post_id(cid):
     if cid == 'root':
         return app.config.get('ROOT_CREDENTIALS')
     
-    posts = app.data.driver.db['posts']
-    lookup = {'_id': cid}
-    cred_post = posts.find_one(lookup)
-    if cred_post is None:
+    cred_post = get_post_by_id(cid)
+    if not cred_post:
         return False
     if cred_post.get('content') is None:
         return False
@@ -220,6 +240,19 @@ def get_credentials_from_post_id(cid):
         'algorithm': str(cred_post['content']['hawk_algorithm']),
         'key': str(cred_post['content']['hawk_key'])
     }
+
+def get_post_by_id(post_id):
+    '''
+    Retrieve a post for the given ID.
+    '''
+    posts = app.data.driver.db['posts']
+    lookup = {'_id': post_id}
+    post = posts.find_one(lookup)
+    if post is None or type(post) is not dict:
+        return False
+    else:
+        return post
+    
 
 class HawkAuth(HMACAuth):
     def check_auth(self, http_auth, host, port, url, data, allowed_roles, resource, method):
@@ -243,6 +276,11 @@ class HawkAuth(HMACAuth):
         except KeyError:
             return False
         except HawkException:
+            return False
+        except Exception:
+            # TODO: Rather than return `False`, `get_credentials_from_post_id`
+            # should raise a custom exception when it can't find a credentials
+            # post
             return False
         
         return True
@@ -288,6 +326,7 @@ app = Eve(settings=settings_file,
 app.on_insert += before_insert
 app.on_update += before_update
 app.on_pre_GET_posts += pre_posts_get_callback
+app.on_post_POST_posts += after_posts_insert
 
 # Load some instance configuration settings
 app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'), silent=True)
