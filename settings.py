@@ -9,7 +9,7 @@ posts = {
     'item_title': 'post',
     
     # This resource item endpoint will match a NewBase60 regex
-    'item_url': 'regex("[0-9A-HJ-NP-Z_a-km-z]{5,8}")',
+    'item_url': 'regex("[0-9A-HJ-NP-Z_a-km-z]{5,9}")',
 
     # We choose to override global cache-control directives for this resource.
     'cache_control': 'max-age=10,must-revalidate',

@@ -5,9 +5,11 @@ from eve import Eve
 from eve.io.mongo import MongoJSONEncoder
 from eve.io.mongo import Validator
 from eve.auth import HMACAuth
+from eve.methods.post import post_internal
 from flask import request
 import hawk
 from hawk.util import HawkException
+from hawk.hcrypto import random_string
 from html_renderer import HTML_Renderer, HTML_STATIC_FOLDER
 
 class NewBase60(object):
@@ -85,15 +87,55 @@ class NewBase60Validator(Validator):
                         value)
 
 def before_insert(resource, documents):
+    meta_post = app.config.get('META_POST')
+    types_endpoint = meta_post['server']['urls']['types']
+    posts_endpoint = meta_post['server']['urls']['posts_feed']
+    
     for document in documents:
         # Create version information, but save app version data if present
-        current_time = int(time.time())
+        current_time = time.time()
+        time_seconds = int(current_time)
+        time_millisec = int(current_time * 1000)
+        time_microsec = int(current_time * 1000000)
         app_version = get_app_version(document)
         digest = create_version_digest(document)
-        document['version'] = create_version_document(digest, current_time, app_version)
+        document['version'] = create_version_document(digest, time_millisec, app_version)
         
         # Create an ID for the document
-        document['_id'] = str(NewBase60(current_time))
+        if document['type'] == (types_endpoint + '/credentials'):
+            # Since credentials posts are created automatically by the server,
+            # we need to specify their IDs in microseconds
+            document['_id'] = str(NewBase60(time_microsec))
+        else:
+            document['_id'] = str(NewBase60(time_seconds))
+        
+        # Additional processing for certain post types
+        if document['type'] == (types_endpoint + '/app'):
+            # For app posts, we must create an additional credentials post
+            # and make sure they link to each other
+            credentials_post = {
+                'entity': str(meta_post['entity']),
+                'type': str(types_endpoint + '/credentials'),
+                'content': {
+                    'hawk_key': str(random_string(64)),
+                    'hawk_algorithm': 'sha256'
+                },
+                'links': [
+                    {
+                        'post': str(document['_id']),
+                        'url': str(posts_endpoint + "/" + document['_id']),
+                        'type': str(types_endpoint + '/app')
+                    }
+                ]
+            }
+            response, _, _, status = post_internal('posts', credentials_post)
+            document['links'] = [
+                {
+                    'post': str(response['_id']),
+                    'url': str(posts_endpoint + "/" + response['_id']),
+                    'type': str(types_endpoint + '/credentials')
+                }
+            ]
 
 def before_update(resource, updates, original):
     # Create an updated version of the original *without* the `version` field,
@@ -157,8 +199,13 @@ def pre_posts_get_callback(request, lookup):
 def get_credentials_from_post_id(cid):
     '''
     Retrieve the credentials post for the given ID and convert it to
-    a format suitable for Hawk authentication
+    a format suitable for Hawk authentication. If the ID is given as `root`, the
+    server will check against the credentials given in `ROOT_CREDENTIALS` in 
+    `piss.cfg`.
     '''
+    if cid == 'root':
+        return app.config.get('ROOT_CREDENTIALS')
+    
     posts = app.data.driver.db['posts']
     lookup = {'_id': cid}
     cred_post = posts.find_one(lookup)
