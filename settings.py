@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # This turns off the links feature to save some bandwidth / processing. Comment
 # this out if you'd like to navigate the API via a browser
 HATEOAS = True

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from eve.auth import HMACAuth
 from flask import current_app, request
 import hawk

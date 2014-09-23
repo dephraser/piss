@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import current_app
 from eve.io.mongo import MongoJSONEncoder
 from eve.io.mongo import Validator

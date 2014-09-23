@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import functools
 from flask import request
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, error_endpoint

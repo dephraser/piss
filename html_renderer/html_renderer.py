@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import jinja2
 from flask import Flask, request, render_template, abort
