@@ -91,7 +91,7 @@ def create_config_file(instance_path, config_file):
     
     # Attempt to create an app post on the server
     app_post = get_app_post(entity, types_endpoint)
-    root_hawk_header = hawk_header(url, 'POST', { 'credentials': root_credentials })
+    root_hawk_header = hawk_header(new_post_endpoint, 'POST', { 'credentials': root_credentials })
     root_headers = get_request_headers(root_hawk_header['field'])
     root_res = requests.post(new_post_endpoint, data=app_post, headers=root_headers)
     if not root_res.status_code == 201:
