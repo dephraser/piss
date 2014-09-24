@@ -55,6 +55,19 @@ def main(url, method, data):
         print("Bewit URL: ")
         print(url + '?bewit=' + hawk_get_bewit(url, {'credentials': credentials, 'ttl_sec': 60 * 1000}))
         return True
+    elif method == 'NOTE':
+        note_post = json.dumps({
+            'entity': 'http://127.0.0.1:5000',
+            'type': 'http://127.0.0.1:5000/types/note',
+            'content': {
+                'text': str(data)
+            },
+            'permissions': {'public': True},
+            'app': {'name': "PISS CLI"}
+        })
+        header = hawk_header(url, 'POST', { 'credentials': credentials })
+        headers = get_request_headers(header['field'])
+        res = requests.post(url, data=note_post, headers=headers)
     else:
         print('Method not supported.')
         return False
