@@ -9,7 +9,7 @@ from hawk.hcrypto import random_string
 from .utils import NewBase60, get_post_by_id
 
 
-def before_insert(resource, documents):
+def before_posts_insert(documents):
     meta_post = current_app.config.get('META_POST')
     types_endpoint = meta_post['server']['urls']['types']
     posts_endpoint = meta_post['server']['urls']['posts_feed']
@@ -60,7 +60,7 @@ def before_insert(resource, documents):
                 }
             ]
 
-def after_posts_insert(request, payload):
+def after_posts_post(request, payload):
     '''
     Callback to be executed after documents have been inserted into the 
     database. Primarily used to change the response envelope depending on the
@@ -81,7 +81,7 @@ def after_posts_insert(request, payload):
                     payload.headers['Link'] = '<%s>; rel="%s"' % (link['url'], str(types_endpoint + "/credentials"))
                     break
 
-def before_update(resource, updates, original):
+def before_posts_update(updates, original):
     # Create an updated version of the original *without* the `version` field,
     # but save app version data if present
     current_time = int(time.time())
@@ -98,12 +98,7 @@ def before_update(resource, updates, original):
     digest = create_version_digest(updated)
     updates['version'] = create_version_document(digest, current_time, app_version)
 
-
-# -----------------------------------------------------------------------------
-# Event hook utilities
-# -----------------------------------------------------------------------------
-
-def pre_posts_get_callback(request, lookup):
+def before_posts_get(request, lookup):
     '''
     Before performing a GET request, check the authorization headers. If no
     auth headers are found or the auth is an incorrect type, set the lookup to
@@ -113,6 +108,10 @@ def pre_posts_get_callback(request, lookup):
     bewit_query = request.args.get('bewit')
     if not http_auth and not bewit_query:
         lookup['permissions'] = {'public': True}
+
+# -----------------------------------------------------------------------------
+# Event hook utilities
+# -----------------------------------------------------------------------------
 
 def create_version_digest(document):
     hasher = hashlib.sha512()

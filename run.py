@@ -4,7 +4,7 @@ import os
 from eve import Eve
 from piss.utils import NewBase60Encoder, NewBase60Validator
 from piss.auth import HawkAuth
-from piss.event_hooks import before_insert, before_update, pre_posts_get_callback, after_posts_insert
+from piss.event_hooks import before_posts_insert, before_posts_update, before_posts_get, after_posts_post
 from html_renderer import HTML_Renderer, HTML_STATIC_FOLDER
 
 
@@ -21,10 +21,10 @@ app = Eve(settings=settings_file,
           static_folder=HTML_STATIC_FOLDER)
 
 # Add event hooks
-app.on_insert += before_insert
-app.on_update += before_update
-app.on_pre_GET_posts += pre_posts_get_callback
-app.on_post_POST_posts += after_posts_insert
+app.on_insert_posts += before_posts_insert
+app.on_update_posts += before_posts_update
+app.on_pre_GET_posts += before_posts_get
+app.on_post_POST_posts += after_posts_post
 
 # Load some instance configuration settings
 app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'))
