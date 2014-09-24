@@ -2,7 +2,7 @@
 
 import os
 import jinja2
-from flask import Flask, request, render_template, abort
+from flask import Flask, request, render_template, abort, jsonify
 from eve.methods import get, getitem
 from .decorators import html_renderer_for
 
@@ -18,7 +18,7 @@ def HTML_Renderer(app):
     # Routes
     @html_renderer_for('home')
     def home_wrapper():
-        return render_template('index.html')
+        return render_template('home.html')
 
     @html_renderer_for('resource')
     def posts_resource_wrapper(resource, method, **lookup):
@@ -27,7 +27,7 @@ def HTML_Renderer(app):
             response, last_modified, etag, status = get(resource, lookup)
         else:
             abort(401)
-        return str(response)
+        return render_template('posts.html', posts=response)
 
     @html_renderer_for('item')
     def posts_item_lookup_wrapper(resource, method, **lookup):
@@ -36,7 +36,7 @@ def HTML_Renderer(app):
             response, last_modified, etag, status = getitem(resource, lookup)
         else:
             abort(401)
-        return str(response)
+        return render_template('post.html', post=response)
 
     @html_renderer_for('resource')
     def types_resource_wrapper(resource, method, **lookup):
@@ -45,7 +45,7 @@ def HTML_Renderer(app):
             response, last_modified, etag, status = get(resource, lookup)
         else:
             abort(401)
-        return str(response)
+        return render_template('types.html', types=response)
 
     @html_renderer_for('item')
     def types_item_lookup_wrapper(resource, method, **lookup):
@@ -54,7 +54,9 @@ def HTML_Renderer(app):
             response, last_modified, etag, status = getitem(resource, lookup)
         else:
             abort(401)
-        return str(response)
+        
+        response = jsonify(name=response.get('name'), schema=response.get('schema'))
+        return response
 
     @html_renderer_for('error')
     def error_wrapper(error):
@@ -81,3 +83,6 @@ def HTML_Renderer(app):
             response.headers['X-UA-Compatible'] = 'IE=edge'
             response.headers['Content-Security-Policy'] = "default-src 'self'; font-src 'self' https://themes.googleusercontent.com; frame-src 'none'; object-src 'none'"
         return response
+
+def get_pretty_print(json_object):
+    return json.dumps(json_object, sort_keys=True, indent=4, separators=(',', ': '))

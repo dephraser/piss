@@ -1,0 +1,22 @@
+    {% extends "layout.html" %}
+    {% block title %}Posts{% endblock %}
+    {% block body %}
+    	<header>
+    		<h2 class="ui header">Posts</h2>
+    	</header>
+        <section class="ui divided list">
+            {% for post in posts['_items'] %}
+            <article class="item">
+                <div class="right floated">
+                    <a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ post['_id'] }}">{{ post['_created'].strftime('%Y-%m-%d %H:%M:%S') }}</a>
+                </div>
+                <i class="pencil icon"></i>
+                <div class="content">
+                    {% if 'content' in post and 'text' in post['content']%}
+                    {{ post['content']['text'] }}
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+    {% endblock %}

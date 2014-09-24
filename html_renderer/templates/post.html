@@ -1,0 +1,10 @@
+    {% extends "layout.html" %}
+    {% block title %}{{ post['_created'].strftime('%Y-%m-%d %H:%M:%S') }}{% endblock %}
+    {% block body %}
+		<header>
+			<h3 class="ui dividing header">{{ post['_created'].strftime('%Y-%m-%d %H:%M:%S') }}</h3>
+		</header>
+        {% if 'content' in post and 'text' in post['content']%}
+		<p>{{ post['content']['text'] }}</p>
+        {% endif %}
+    {% endblock %}

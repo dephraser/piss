@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Site Properities -->
-    <title>{% block title %}{% endblock %} - {{ config['SITE_NAME'] }}</title>
+    <title>{% block title %}{% endblock %} - {{ config['META_POST']['profile']['name'] }}</title>
 	<meta name="description" content="{% block description %}A Personal Information Storage and Syndication website{% endblock %}">
 
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/semantic.min.css')}}">
