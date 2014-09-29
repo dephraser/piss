@@ -1,29 +1,95 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<html lang="en">
 <head>
-    <!-- Standard Meta -->
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %} - {{ config['META_POST']['profile']['name'] }}</title>
+    <meta name="description" content="{% block description %}A Personal Information Storage and Syndication website{% endblock %}">
+    <meta name="author" content="">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Site Properities -->
-    <title>{% block title %}{% endblock %} - {{ config['META_POST']['profile']['name'] }}</title>
-	<meta name="description" content="{% block description %}A Personal Information Storage and Syndication website{% endblock %}">
+    <!-- Place favicon.ico and apple-touch-icon(s) here  -->
+    <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.ico')}}">
+    <link rel="apple-touch-icon" href="{{url_for('static', filename='img/touch-icon-iphone.png')}}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{url_for('static', filename='img/touch-icon-ipad.png')}}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{url_for('static', filename='img/touch-icon-iphone-retina.png')}}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{url_for('static', filename='img/touch-icon-ipad-retina.png')}}">
+    <link rel="apple-touch-startup-image" href="{{url_for('static', filename='img/splash.320x460.png')}}" media="screen and (min-device-width: 200px) and (max-device-width: 320px) and (orientation:portrait)">
+    <link rel="apple-touch-startup-image" href="{{url_for('static', filename='img/splash.768x1004.png')}}" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)">
+    <link rel="apple-touch-startup-image" href="{{url_for('static', filename='img/splash.1024x748.png')}}" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)">
 
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/semantic.min.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
-    {% block header %}{% endblock %}
-</head>
-<body>
-    <!--[if lt IE 7]>
-        <p class="ui message">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <!-- load inks CSS -->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/ink-flex.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+
+    <!-- load inks CSS for IE8 -->
+    <!--[if lt IE 9 ]>
+        <link rel="stylesheet" href="css/ink-ie.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
     <![endif]-->
 
-	<section id="piss-app">
-		{% block body %}{% endblock %}
-	</section>
-    {% block footer %}{% endblock %}
+    <!-- test browser flexbox support and load legacy grid if unsupported -->
+    <script type="text/javascript" src="{{url_for('static', filename='js/modernizr.js')}}"></script>
+    <script type="text/javascript">
+        Modernizr.load({
+          test: Modernizr.flexbox,
+          nope : "{{url_for('static', filename='css/ink-legacy.min.css')}}"
+        });
+    </script>
+	{% block header %}{% endblock %}
+</head>
+
+<body>
+
+    <!--[if lte IE 9 ]>
+    <div class="ink-alert basic" role="alert">
+        <button class="ink-dismiss">&times;</button>
+        <p>
+            <strong>You are using an outdated Internet Explorer version.</strong>
+            Please <a href="http://browsehappy.com/">upgrade to a modern browser</a> to improve your web experience.
+        </p>
+    </div>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+
+    <div class="wrap">
+        <div class="top-menu">
+            <nav class="ink-navigation ink-grid">
+				<div class="column-group">
+					<div class="all-33 small-100">
+	                    <ul class="menu horizontal black">
+	                        <li class="active"><a href="#">name</a></li>
+	                    </ul>
+					</div>
+					<div class="all-66 small-100">
+	                    <ul class="menu horizontal black medium-push-right large-push-right xlarge-push-right">
+	                        <li><a href="#">item</a></li>
+	                        <li><a href="#">item</a></li>
+	                        <li><a href="#">item</a></li>
+	                        <li><a href="#">item</a></li>
+	                    </ul>
+					</div>
+				</div>
+            </nav>
+        </div>
+		<div class="ink-grid vertical-space">
+			{% block body %}{% endblock %}
+		</div>
+		<div class="push"></div>
+	</div>
+    <footer class="clearfix">
+        <div class="ink-grid">
+            <ul class="unstyled inline half-vertical-space">
+                <li class="active"><a href="#">About</a></li>
+                <li><a href="#">Sitemap</a></li>
+                <li><a href="#">Contacts</a></li>
+            </ul>
+            <p class="note">Identification of the owner of the copyright, either by name, abbreviation, or other designation by which it is generally known.</p>
+        </div>
+    </footer>
+	{% block footer %}{% endblock %}
 </body>
 </html>

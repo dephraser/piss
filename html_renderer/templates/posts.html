@@ -1,22 +1,24 @@
     {% extends "layout.html" %}
     {% block title %}Posts{% endblock %}
     {% block body %}
-    	<header>
-    		<h2 class="ui header">Posts</h2>
-    	</header>
-        <section class="ui divided list">
-            {% for post in posts['_items'] %}
-            <article class="item">
-                <div class="right floated">
-                    <a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ post['_id'] }}">{{ post['_created'].strftime('%Y-%m-%d %H:%M:%S') }}</a>
-                </div>
-                <i class="pencil icon"></i>
-                <div class="content">
-                    {% if 'content' in post and 'text' in post['content']%}
-                    {{ post['content']['text'] }}
-                    {% endif %}
-                </div>
-            </article>
-            {% endfor %}
-        </section>
+    	<h1>Posts</h1>
+		<dl>
+		{% for post in posts['_items'] %}
+			<dt><a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ post['_id'] }}">{{ post['_id'] }}</a></dt>
+			{% if 'content' in post %}
+			<dd>
+			{% for key, value in post['content'].iteritems()|sort recursive %}
+				{% if value is mapping %}
+				<span>{{ key }}:</span>
+				 { {{ loop(value.iteritems()) }} }
+				{% else %}
+				<span>{{ key }}:</span>
+				<span>{{ value }}</span>
+				{% endif %}
+				{% if not loop.last %},{% endif %}
+			{% endfor %}
+			</dd>
+			{% endif %}
+		{% endfor %}
+		</dl>
     {% endblock %}

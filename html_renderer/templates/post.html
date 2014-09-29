@@ -1,10 +1,24 @@
     {% extends "layout.html" %}
-    {% block title %}{{ post['_created'].strftime('%Y-%m-%d %H:%M:%S') }}{% endblock %}
+    {% block title %}{{ post['_id'] }}{% endblock %}
     {% block body %}
-		<header>
-			<h3 class="ui dividing header">{{ post['_created'].strftime('%Y-%m-%d %H:%M:%S') }}</h3>
-		</header>
+		<h1>Post: {{ post['_id'] }}</h1>
+		<table class="ink-table">
+		{% for key, value in post.iteritems()|sort recursive %}
+			<tr>
+			{% if value is mapping %}
+				<td colspan="2">
+					{{ key }}
+					<table class="ink-table">
+						{{ loop(value.iteritems()) }}
+					</table>
+				</td>
+			{% else %}
+				<td>{{ key }}:</td>
+				<td><pre class="api-value">{{ value }}</pre></td>
+			{% endif %}
+			</tr>
+		{% endfor %}
+		</table>
         {% if 'content' in post and 'text' in post['content']%}
-		<p>{{ post['content']['text'] }}</p>
         {% endif %}
     {% endblock %}
