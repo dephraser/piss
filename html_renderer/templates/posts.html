@@ -7,16 +7,20 @@
 			<dt><a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ post['_id'] }}">{{ post['_id'] }}</a></dt>
 			{% if 'content' in post %}
 			<dd>
-			{% for key, value in post['content'].iteritems()|sort recursive %}
-				{% if value is mapping %}
-				<span>{{ key }}:</span>
-				 { {{ loop(value.iteritems()) }} }
+				{% for key in ['title', 'name', 'description', 'text'] if key in post['content'] %}
+				<span>{{ post['content'][key] }}</span>
 				{% else %}
-				<span>{{ key }}:</span>
-				<span>{{ value }}</span>
-				{% endif %}
-				{% if not loop.last %},{% endif %}
-			{% endfor %}
+					{% for key, value in post['content'].iteritems()|sort recursive %}
+						{% if value is mapping %}
+						<span>{{ key }}:</span>
+						 { {{ loop(value.iteritems()) }} }
+						{% else %}
+						<span>{{ key }}:</span>
+						<span>{{ value }}</span>
+						{% endif %}
+						{% if not loop.last %},{% endif %}
+					{% endfor %}
+				{% endfor %}
 			</dd>
 			{% endif %}
 		{% endfor %}
