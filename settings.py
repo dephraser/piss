@@ -12,6 +12,11 @@ posts = {
     
     # This resource item endpoint will match a NewBase60 regex
     'item_url': 'regex("[0-9A-HJ-NP-Z_a-km-z]{5,9}")',
+    
+    # Sort in reverse chronological order
+    'datasource': {
+        'default_sort': [('_created', -1)]
+    },
 
     # We choose to override global cache-control directives for this resource.
     'cache_control': 'max-age=10,must-revalidate',
@@ -223,6 +228,11 @@ types = {
     'cache_control': 'max-age=10,must-revalidate',
     'cache_expires': 10,
     'resource_methods': ['GET', 'POST'],
+    
+    # Sort alphabetically by name
+    'datasource': {
+        'default_sort': [('name', 1)]
+    },
     
     # Allow us to access type resources by name
     'additional_lookup': {
