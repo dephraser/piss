@@ -85,8 +85,17 @@
 		<div class="push"></div>
 	</div>
     <footer class="clearfix">
-        <div class="ink-grid">
-            <ul class="unstyled inline half-vertical-space">
+		{% if links %}
+		<div class="ink-grid footer-nav">
+		    <ul class="unstyled inline quarter-vertical-space">
+				{% for key in links %}
+				<li><a href="{{ links[key]['href'] }}" title="{{ links[key]['title']|capitalize }}">{{ key|capitalize }}</a></li>
+				{% endfor %}
+		    </ul>
+		</div>
+		{% endif %}
+        <div class="ink-grid footer-info">
+            <ul class="unstyled inline quarter-vertical-space">
                 <li class="active"><a href="#">About</a></li>
                 <li><a href="#">Sitemap</a></li>
                 <li><a href="#">Contacts</a></li>

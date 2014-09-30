@@ -27,7 +27,9 @@ def HTML_Renderer(app):
             response, last_modified, etag, status = get(resource, lookup)
         else:
             abort(401)
-        return render_template('posts.html', posts=response)
+        links = response.pop('_links', {})
+        posts = response.pop('_items', [])
+        return render_template('posts.html', posts=posts, links=links)
 
     @html_renderer_for('item')
     def posts_item_lookup_wrapper(resource, method, **lookup):
@@ -36,7 +38,9 @@ def HTML_Renderer(app):
             response, last_modified, etag, status = getitem(resource, lookup)
         else:
             abort(401)
-        return render_template('post.html', post=response)
+        links = response.pop('_links', {})
+        content = response.pop('content', {})
+        return render_template('post.html', post=response, content=content, links=links)
 
     @html_renderer_for('resource')
     def types_resource_wrapper(resource, method, **lookup):
@@ -45,7 +49,9 @@ def HTML_Renderer(app):
             response, last_modified, etag, status = get(resource, lookup)
         else:
             abort(401)
-        return render_template('types.html', types=response)
+        links = response.pop('_links', {})
+        types = response.pop('_items', [])
+        return render_template('types.html', types=types, links=links)
 
     @html_renderer_for('item')
     def types_item_lookup_wrapper(resource, method, **lookup):
@@ -73,7 +79,7 @@ def HTML_Renderer(app):
     app.view_functions['types|item_additional_lookup'] = types_item_lookup_wrapper
     
     # Override Eve's error handler functions
-    for code in [400, 401, 403, 404, 422]:
+    for code in app.error_handler_spec[None]:
         app.error_handler_spec[None][code] = error_wrapper
     
     # Set some additional headers for non-XML and non-JSON requests

@@ -39,16 +39,21 @@ html, body {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto -120px;
+    margin: 0 auto -9em;
     overflow: auto;
 }
 .push, footer {
-    height: 120px;
+    height: 9em;
     margin-top: 0;
 }
-footer {
+.footer-nav {
+	height: 3em;
+}
+.footer-info {
+	height: 6em;
     background: #ccc;
     border: 0;
+	overflow: auto;
 }
 footer * {
     line-height: inherit;

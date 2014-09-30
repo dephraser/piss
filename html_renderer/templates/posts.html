@@ -3,7 +3,7 @@
     {% block body %}
     	<h1>Posts</h1>
 		<dl>
-		{% for post in posts['_items'] %}
+		{% for post in posts %}
 			<dt><a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ post['_id'] }}">{{ post['_id'] }}</a></dt>
 			{% if 'content' in post %}
 			<dd>
