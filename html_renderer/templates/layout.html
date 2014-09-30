@@ -61,16 +61,20 @@
 				<div class="column-group">
 					<div class="all-33 small-100">
 	                    <ul class="menu horizontal black">
-	                        <li class="active"><a href="#">name</a></li>
+	                        <li class="active"><a href="{{url_for('home')}}">{{ config['META_POST']['profile']['name'] }}</a></li>
 	                    </ul>
 					</div>
 					<div class="all-66 small-100">
+						{% if config['MENU_ITEMS'] %}
+						{% set types_url = config['META_POST']['server']['urls']['types'] + '/' %}
+						{% set posts_url = config['META_POST']['server']['urls']['posts_feed'] + '/' %}
 	                    <ul class="menu horizontal black medium-push-right large-push-right xlarge-push-right">
-	                        <li><a href="#">item</a></li>
-	                        <li><a href="#">item</a></li>
-	                        <li><a href="#">item</a></li>
-	                        <li><a href="#">item</a></li>
+							{% for menu_item in config['MENU_ITEMS'] %}
+	                        <li><a href="{{ posts_url }}?where={{ '{' }}%22type%22:%22{{ types_url + menu_item.type }}%22{{ '}' }}">{{ menu_item.name }}</a></li>
+							{% endfor %}
+							<li><a href="{{ posts_url }}">Everything</a></li>
 	                    </ul>
+						{% endif %}
 					</div>
 				</div>
             </nav>
