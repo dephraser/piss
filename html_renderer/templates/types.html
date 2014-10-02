@@ -4,7 +4,7 @@
     	<h1>Types</h1>
         <ul>
             {% for item in items %}
-            <li><a href="{{ config['META_POST']['server']['urls']['types'] }}/{{ post_type['name'] }}">{{ item['name'] }}</a></li>
+            <li><a href="{{ config['META_POST']['server']['urls']['types'] }}/{{ item['name'] }}">{{ item['name'] }}</a></li>
             {% endfor %}
         </ul>
     {% endblock %}

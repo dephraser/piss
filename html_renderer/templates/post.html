@@ -2,6 +2,24 @@
     {% block title %}{{ item['_id'] }}{% endblock %}
     {% block body %}
 		<h1>Post: {{ item['_id'] }}</h1>
+        content:
+		<table class="ink-table">
+		{% for key, value in content.iteritems()|sort recursive %}
+			<tr>
+			{% if value is mapping %}
+				<td colspan="2">
+					{{ key }}
+					<table class="ink-table">
+						{{ loop(value.iteritems()) }}
+					</table>
+				</td>
+			{% else %}
+				<td>{{ key }}:</td>
+				<td><pre class="api-value">{{ value }}</pre></td>
+			{% endif %}
+			</tr>
+		{% endfor %}
+		</table>
 		<table class="ink-table">
 		{% for key, value in item.iteritems()|sort recursive %}
 			<tr>

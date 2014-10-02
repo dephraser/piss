@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 import jinja2
 from flask import Flask, request, render_template, abort, jsonify
 from eve.methods import get, getitem
@@ -61,6 +62,13 @@ def HTML_Renderer(app):
     # Override Eve's error handler functions
     for code in app.error_handler_spec[None]:
         app.error_handler_spec[None][code] = error_wrapper
+    
+    # Create a custom Jinja filter
+    @app.template_filter('ppjson')
+    def json_pretty_print(dictionary):
+        if dictionary is None or type(dictionary) is not dict:
+            return dictionary
+        return json.dumps(dictionary, sort_keys=True, indent=4, separators=(',', ': '))
     
     # Set some additional headers for non-XML and non-JSON requests
     @app.after_request
