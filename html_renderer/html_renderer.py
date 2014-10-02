@@ -21,18 +21,18 @@ def HTML_Renderer(app):
         return render_template('home.html')
 
     @html_renderer_for('resource')
-    def posts_resource_wrapper(resource, method, **lookup):
+    def resource_wrapper(resource, method, **lookup):
         response = None
         if method in ('GET', 'HEAD'):
             response, last_modified, etag, status = get(resource, lookup)
         else:
             abort(401)
         links = response.pop('_links', {})
-        posts = response.pop('_items', [])
-        return render_template('posts.html', posts=posts, links=links)
+        items = response.pop('_items', [])
+        return render_template('%s.html' % (resource,), items=items, links=links)
 
     @html_renderer_for('item')
-    def posts_item_lookup_wrapper(resource, method, **lookup):
+    def item_lookup_wrapper(resource, method, **lookup):
         response = None
         if method in ('GET', 'HEAD'):
             response, last_modified, etag, status = getitem(resource, lookup)
@@ -40,43 +40,23 @@ def HTML_Renderer(app):
             abort(401)
         links = response.pop('_links', {})
         content = response.pop('content', {})
-        return render_template('post.html', post=response, content=content, links=links)
-
-    @html_renderer_for('resource')
-    def types_resource_wrapper(resource, method, **lookup):
-        response = None
-        if method in ('GET', 'HEAD'):
-            response, last_modified, etag, status = get(resource, lookup)
-        else:
-            abort(401)
-        links = response.pop('_links', {})
-        types = response.pop('_items', [])
-        return render_template('types.html', types=types, links=links)
-
-    @html_renderer_for('item')
-    def types_item_lookup_wrapper(resource, method, **lookup):
-        response = None
-        if method in ('GET', 'HEAD'):
-            response, last_modified, etag, status = getitem(resource, lookup)
-        else:
-            abort(401)
-        
-        response = jsonify(name=response.get('name'), schema=response.get('schema'))
-        return response
+        return render_template('%s.html' % (app.config['DOMAIN'][resource]['item_title'],), item=response, content=content, links=links)
 
     @html_renderer_for('error')
     def error_wrapper(error):
         return render_template('error.html', code=error.code, message=error.description), error.code
     
-    # Override Eve's view functions with our own. You can view which view
-    # function identifiers you have available to override by looking at the
-    # rules in `app.url_map`
-    app.view_functions['home'] = home_wrapper
-    app.view_functions['posts|resource'] = posts_resource_wrapper
-    app.view_functions['posts|item_lookup'] = posts_item_lookup_wrapper
-    app.view_functions['types|resource'] = types_resource_wrapper
-    app.view_functions['types|item_lookup'] = types_item_lookup_wrapper
-    app.view_functions['types|item_additional_lookup'] = types_item_lookup_wrapper
+    # Override Eve's view functions with our own.
+    for key in app.view_functions:
+        # Split the key at the pipe and get the last item
+        func_name = key.split('|')[-1]
+        
+        if func_name == 'home':
+            app.view_functions[key] = home_wrapper
+        elif func_name == 'resource':
+            app.view_functions[key] = resource_wrapper
+        elif func_name == 'item_lookup' or func_name == 'item_additional_lookup':
+            app.view_functions[key] = item_lookup_wrapper
     
     # Override Eve's error handler functions
     for code in app.error_handler_spec[None]:
@@ -89,6 +69,3 @@ def HTML_Renderer(app):
             response.headers['X-UA-Compatible'] = 'IE=edge'
             response.headers['Content-Security-Policy'] = "default-src 'self'; font-src 'self' https://themes.googleusercontent.com; frame-src 'none'; object-src 'none'"
         return response
-
-def get_pretty_print(json_object):
-    return json.dumps(json_object, sort_keys=True, indent=4, separators=(',', ': '))

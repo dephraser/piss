@@ -3,14 +3,14 @@
     {% block body %}
     	<h1>Posts</h1>
 		<dl>
-		{% for post in posts %}
-			<dt><a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ post['_id'] }}">{{ post['_id'] }}</a></dt>
-			{% if 'content' in post %}
+		{% for item in items %}
+			<dt><a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ item['_id'] }}">{{ item['_id'] }}</a></dt>
+			{% if 'content' in item %}
 			<dd>
-				{% for key in ['title', 'name', 'description', 'text'] if key in post['content'] %}
-				<span>{{ post['content'][key] }}</span>
+				{% for key in ['title', 'name', 'description', 'text'] if key in item['content'] %}
+				<span>{{ item['content'][key] }}</span>
 				{% else %}
-					{% for key, value in post['content'].iteritems()|sort recursive %}
+					{% for key, value in item['content'].iteritems()|sort recursive %}
 						{% if value is mapping %}
 						<span>{{ key }}:</span>
 						 { {{ loop(value.iteritems()) }} }

@@ -1,9 +1,9 @@
     {% extends "layout.html" %}
-    {% block title %}{{ post['_id'] }}{% endblock %}
+    {% block title %}{{ item['_id'] }}{% endblock %}
     {% block body %}
-		<h1>Post: {{ post['_id'] }}</h1>
+		<h1>Post: {{ item['_id'] }}</h1>
 		<table class="ink-table">
-		{% for key, value in post.iteritems()|sort recursive %}
+		{% for key, value in item.iteritems()|sort recursive %}
 			<tr>
 			{% if value is mapping %}
 				<td colspan="2">
@@ -19,6 +19,4 @@
 			</tr>
 		{% endfor %}
 		</table>
-        {% if 'content' in post and 'text' in post['content']%}
-        {% endif %}
     {% endblock %}
