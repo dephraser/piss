@@ -85,15 +85,15 @@
 		<div class="push"></div>
 	</div>
     <footer class="clearfix">
-		{% if links %}
 		<div class="ink-grid footer-nav">
+        {% if links %}
 		    <ul class="unstyled inline quarter-vertical-space">
 				{% for key in links %}
 				<li><a href="{{ links[key]['href'] }}" title="{{ links[key]['title']|capitalize }}">{{ key|capitalize }}</a></li>
 				{% endfor %}
 		    </ul>
-		</div>
 		{% endif %}
+		</div>
         <div class="ink-grid footer-info">
             <ul class="unstyled inline quarter-vertical-space">
                 <li class="active"><a href="#">About</a></li>
