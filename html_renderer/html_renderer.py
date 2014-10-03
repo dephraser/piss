@@ -3,7 +3,7 @@
 import os
 import json
 import jinja2
-from flask import Flask, request, render_template, abort, jsonify
+from flask import Flask, request, render_template, abort, jsonify, url_for, make_response
 from eve.methods import get, getitem
 from .decorators import html_renderer_for
 
@@ -19,7 +19,9 @@ def HTML_Renderer(app):
     # Routes
     @html_renderer_for('home')
     def home_wrapper():
-        return render_template('home.html')
+        response = make_response(render_template('home.html'))
+        response.headers.add('Link', str(url_for('server.meta')))
+        return response
 
     @html_renderer_for('resource')
     def resource_wrapper(resource, method, **lookup):
