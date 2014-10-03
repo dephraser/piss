@@ -28,6 +28,8 @@ def HTML_Renderer(app):
         response = None
         if method in ('GET', 'HEAD'):
             response, last_modified, etag, status = get(resource, lookup)
+        elif method == 'OPTIONS':
+            return app.make_default_options_response()
         else:
             abort(401)
         links = response.pop('_links', {})
@@ -39,6 +41,8 @@ def HTML_Renderer(app):
         response = None
         if method in ('GET', 'HEAD'):
             response, last_modified, etag, status = getitem(resource, lookup)
+        elif method == 'OPTIONS':
+            return app.make_default_options_response()
         else:
             abort(401)
         links = response.pop('_links', {})
