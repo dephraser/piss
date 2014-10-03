@@ -8,13 +8,13 @@ from eve.methods import get, getitem
 from .decorators import html_renderer_for
 
 
-# The static folder can only be set on init, so it's here so Eve can import
-HTML_STATIC_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static')
-
 def HTML_Renderer(app):
     # Set directory for HTML templates
     templates_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates')
     app.jinja_loader = jinja2.FileSystemLoader(templates_path)
+    
+    # Set directory for static files
+    app.static_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static')
     
     # Routes
     @html_renderer_for('home')
