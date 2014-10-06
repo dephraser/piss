@@ -7,7 +7,7 @@ from hawk.client import header as hawk_header
 from hawk.client import authenticate as hawk_authenticate
 from hawk.client import get_bewit as hawk_get_bewit
 
-def main(action, data, post_type, url, pid,  public, page):
+def main(action, data, post_type, url, pid,  public, page, file):
     """
     Access and modify data from a PISS server on the command line.
     """
@@ -87,7 +87,15 @@ def main(action, data, post_type, url, pid,  public, page):
         recursive_input_data(data['content'], server_types[post_type])
         if public:
             data['permissions'] = {"public": True}
-        res = requests.post(url, data=json.dumps(data), headers=get_request_headers(url, action, credentials))
+        
+        if file:
+            extra_headers = {'Content-Type': 'multipart/form-data'}
+            headers = get_request_headers(url, action, credentials, extra_headers=extra_headers)
+            file = open('/Users/jmontes/Desktop/dies.png', 'rb')
+            files = (('dies.png', file),)
+            res = requests.post(url, data=data, files=files, headers=headers)
+        else:
+            res = requests.post(url, data=json.dumps(data), headers=get_request_headers(url, action, credentials))
     elif action == 'PATCH':
         etag = get_etag(url, get_request_headers(url, 'GET', credentials))
         res = requests.patch(url, data=data, headers=get_request_headers(url, action, credentials, etag))
@@ -257,11 +265,14 @@ def write_config_file(config_path, meta_url, meta_post, server_types, credential
         print("Could not create or write to the configuration file.")
         return False
 
-def get_request_headers(url, method, credentials, etag=None):
+def get_request_headers(url, method, credentials, etag=None, extra_headers=None):
     headers = {
         'Content-Type': 'application/json', 
         'Accept': 'application/json'
     }
+    if extra_headers:
+        for key in extra_headers:
+            headers[key] = extra_headers[key]
     if credentials:
         header = hawk_header(url, method, { 'credentials': credentials })
         headers['Authorization'] = header['field']
@@ -320,5 +331,6 @@ if __name__ == '__main__':
     parser.add_argument('--id', type=str, help='ID of the resource you want to manipulate.', default='')
     parser.add_argument('--public', help='Display only public posts.', action='store_true')
     parser.add_argument('--page', help='Display the specified page of posts.', default=0)
+    parser.add_argument('--file', help='A file to be uploaded', default='')
     args = parser.parse_args()
-    main(args.action, args.data, args.type, args.url, args.id, args.public, args.page)
+    main(args.action, args.data, args.type, args.url, args.id, args.public, args.page, args.file)

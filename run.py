@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 from eve import Eve
 from piss.utils import NewBase60Encoder, NewBase60Validator
 from piss.auth import HawkAuth
@@ -20,10 +21,14 @@ app = Eve(settings=settings_file,
           auth=HawkAuth,
           instance_path=instance_path)
 
+def before_posts_post(request):
+    print(request.headers)
+
 # Add event hooks
 app.on_insert_posts += before_posts_insert
 app.on_update_posts += before_posts_update
 app.on_pre_GET_posts += before_posts_get
+app.on_pre_POST_posts += before_posts_post
 app.on_post_POST_posts += after_posts_post
 
 # Load some instance configuration settings

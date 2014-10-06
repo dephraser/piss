@@ -79,7 +79,10 @@ def HTML_Renderer(app):
     # Set some additional headers for non-XML and non-JSON requests
     @app.after_request
     def process_response(response):
-        if request.method == 'GET' and not 'application/json' in response.mimetype and not 'application/xml' in response.mimetype:
-            response.headers['X-UA-Compatible'] = 'IE=edge'
-            response.headers['Content-Security-Policy'] = "default-src 'self'; font-src 'self' https://themes.googleusercontent.com; frame-src 'none'; object-src 'none'"
+        if request.method == 'GET': 
+            for mimetype in ('application/json', 'application/xml', 'multipart/data-form'):
+                if not mimetype in response.mimetype:
+                    response.headers['X-UA-Compatible'] = 'IE=edge'
+                    response.headers['Content-Security-Policy'] = "default-src 'self'; font-src 'self' https://themes.googleusercontent.com; frame-src 'none'; object-src 'none'"
+                    break
         return response
