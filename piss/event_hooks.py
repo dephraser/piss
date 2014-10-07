@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import os
 import time
 import hashlib
 import json
 from eve.methods.post import post_internal
-from flask import current_app, request
+from eve.render import send_response
+from flask import current_app, request, abort
 from hawk.hcrypto import random_string
 from .utils import NewBase60, get_post_by_id
 
@@ -59,6 +61,22 @@ def before_posts_insert(documents):
                     'type': str(types_endpoint + '/credentials')
                 }
             ]
+
+def before_posts_post(request):
+    '''
+    Callback to be executed before documents have been validated. Primarily used
+    to handle multipart form data.
+    '''
+    if request.mimetype == 'multipart/form-data':
+        payload = {}
+        attachments_path = os.path.join(current_app.instance_path, 'attachments')
+        for key in request.form:
+            payload = json.loads(request.form[key])
+        for key in request.files:
+            file = request.files[key]
+            file.save(os.path.join(attachments_path, file.filename))
+        response = post_internal('posts', payload)
+        abort(send_response('posts', response))
 
 def after_posts_post(request, payload):
     '''

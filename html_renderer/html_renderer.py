@@ -80,7 +80,7 @@ def HTML_Renderer(app):
     @app.after_request
     def process_response(response):
         if request.method == 'GET': 
-            for mimetype in ('application/json', 'application/xml', 'multipart/data-form'):
+            for mimetype in ('application/json', 'application/xml'):
                 if not mimetype in response.mimetype:
                     response.headers['X-UA-Compatible'] = 'IE=edge'
                     response.headers['Content-Security-Policy'] = "default-src 'self'; font-src 'self' https://themes.googleusercontent.com; frame-src 'none'; object-src 'none'"

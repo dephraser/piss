@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
 from eve import Eve
 from piss.utils import NewBase60Encoder, NewBase60Validator
 from piss.auth import HawkAuth
-from piss.event_hooks import before_posts_insert, before_posts_update, before_posts_get, after_posts_post
+from piss.event_hooks import before_posts_insert, before_posts_update, before_posts_get, before_posts_post, after_posts_post
 from piss.routes import server
 from html_renderer import HTML_Renderer
 
@@ -20,9 +19,6 @@ app = Eve(settings=settings_file,
           validator=NewBase60Validator,
           auth=HawkAuth,
           instance_path=instance_path)
-
-def before_posts_post(request):
-    print(request.headers)
 
 # Add event hooks
 app.on_insert_posts += before_posts_insert

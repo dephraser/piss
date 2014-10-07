@@ -1,4 +1,5 @@
 import requests
+from requests_toolbelt import MultipartEncoder
 import json
 import os
 import urlparse
@@ -89,13 +90,17 @@ def main(action, data, post_type, url, pid,  public, page, file):
             data['permissions'] = {"public": True}
         
         if file:
-            extra_headers = {'Content-Type': 'multipart/form-data'}
+            file_data = (os.path.basename(file), open(file, 'rb'), 'image/png')
+            m = MultipartEncoder(fields={'message': json.dumps(data), 'file': file_data})
+            extra_headers = {'Content-Type': m.content_type}
             headers = get_request_headers(url, action, credentials, extra_headers=extra_headers)
-            file = open('/Users/jmontes/Desktop/dies.png', 'rb')
-            files = (('dies.png', file),)
-            res = requests.post(url, data=data, files=files, headers=headers)
+            data = m
         else:
-            res = requests.post(url, data=json.dumps(data), headers=get_request_headers(url, action, credentials))
+            extra_headers = None
+            headers = headers = get_request_headers(url, action, credentials, extra_headers=extra_headers)
+            data = json.dumps(data)
+        
+        res = requests.post(url, data=data, headers=headers)
     elif action == 'PATCH':
         etag = get_etag(url, get_request_headers(url, 'GET', credentials))
         res = requests.patch(url, data=data, headers=get_request_headers(url, action, credentials, etag))

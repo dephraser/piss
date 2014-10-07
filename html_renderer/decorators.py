@@ -23,7 +23,7 @@ def html_renderer_for(request_type):
         @functools.wraps(wrapper_func)
         def wrapper(*args, **kwargs):
             # If the request is XML or JSON, return the Eve endpoint
-            if request_is_xml() or request_is_json() or request_is_multipart():
+            if request_is_xml() or request_is_json():
                 return eve_view_func(*args, **kwargs)
             
             # If the request is for the `item` or `resource` endpoints, get
@@ -54,13 +54,6 @@ def request_is_json():
     best = request.accept_mimetypes \
         .best_match(['application/json', 'text/html'])
     return best == 'application/json' and \
-        request.accept_mimetypes[best] > \
-        request.accept_mimetypes['text/html']
-
-def request_is_multipart():
-    best = request.accept_mimetypes \
-        .best_match(['multipart/data-form', 'text/html'])
-    return best == 'multipart/data-form' and \
         request.accept_mimetypes[best] > \
         request.accept_mimetypes['text/html']
 
