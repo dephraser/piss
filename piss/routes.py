@@ -2,7 +2,7 @@
 
 from flask import Blueprint, jsonify, current_app, make_response, render_template, send_from_directory, abort
 from eve.render import render_xml
-from html_renderer.decorators import request_is_json, request_is_xml
+from .html_renderer.decorators import request_is_json, request_is_xml
 from .attachments import get_attachment_dir
 
 server = Blueprint('server', __name__)

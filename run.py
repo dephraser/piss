@@ -6,7 +6,7 @@ from piss.utils import NewBase60Encoder, NewBase60Validator
 from piss.auth import HawkAuth
 from piss.event_hooks import before_posts_insert, before_posts_update, before_posts_get, before_posts_post, after_posts_post
 from piss.routes import server
-from html_renderer import HTML_Renderer
+from piss.html_renderer import HTML_Renderer
 
 
 # Grab the paths for the Eve settings file and the instance folder
