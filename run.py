@@ -30,6 +30,12 @@ app.on_post_POST_posts += after_posts_post
 # Load some instance configuration settings
 app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'))
 
+# TODO: Make sure all the config settings you need are present
+if not os.path.isdir(os.path.join(app.instance_path, 'attachments')):
+    os.makedirs(os.path.join(app.instance_path, 'attachments'))
+if not os.path.isdir(os.path.join(app.instance_path, 'tmp')):
+    os.makedirs(os.path.join(app.instance_path, 'tmp'))
+
 # Add some routes
 app.register_blueprint(server)
 

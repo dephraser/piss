@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import time
 import hashlib
 import json
@@ -9,6 +8,7 @@ from eve.render import send_response
 from flask import current_app, request, abort
 from hawk.hcrypto import random_string
 from .utils import NewBase60, get_post_by_id
+from .attachments import save_attachment, get_attachment, delete_attachment
 
 
 def before_posts_insert(documents):
@@ -68,14 +68,27 @@ def before_posts_post(request):
     to handle multipart form data.
     '''
     if request.mimetype == 'multipart/form-data':
+        # This is designed to parse only a single `request.form` item. 
+        # Additional items will be ignored.
         payload = {}
-        attachments_path = os.path.join(current_app.instance_path, 'attachments')
         for key in request.form:
             payload = json.loads(request.form[key])
+            break
+        
+        # The actual names of the keys used to send `request.files` data are
+        # ignored.
+        attachments = []
         for key in request.files:
             file = request.files[key]
-            file.save(os.path.join(attachments_path, file.filename))
+            attachments.append(save_attachment(file))
+        
+        if attachments:
+            payload['attachments'] = attachments
         response = post_internal('posts', payload)
+        
+        # Instead of continuing with the default response (where the request 
+        # will be sent to Eve's `post` function), we abort normal operation and
+        # create our own response.
         abort(send_response('posts', response))
 
 def after_posts_post(request, payload):
