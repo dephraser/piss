@@ -1,0 +1,50 @@
+{% macro create_table_from_object(item) -%}
+	<table class="ink-table">
+	{% for key, value in item.iteritems()|sort recursive %}
+		<tr>
+		{% if value is mapping %}
+			<td colspan="2">
+				{{ key }}
+				<table class="ink-table">
+					{{ loop(value.iteritems()) }}
+				</table>
+			</td>
+		{% elif value is list %}
+			<td colspan="2">
+				{% set outer_loop = loop %}
+				{% for value_item in value %}
+				{{ key }}[{{ loop.index0 }}]:
+				<table class="ink-table">
+					{{ outer_loop(value_item.iteritems()) }}
+				</table>
+				{% if not loop.last %}<br />{% endif %}
+				{% endfor %}
+			</td>
+		{% else %}
+			<td>{{ key }}:</td>
+			<td><pre class="api-value">{{ value }}</pre></td>
+		{% endif %}
+		</tr>
+	{% endfor %}
+	</table>
+{%- endmacro %}
+
+{% macro create_nested_spans_from_object(item) -%}
+	{% for key, value in item.iteritems()|sort recursive %}
+		{% if value is mapping %}
+			<span>{{ key }}:</span>
+			{ {{ loop(value.iteritems()) }} }
+		{% elif value is list %}
+			{{ key }}: 
+			{% set outer_loop = loop %}
+			[ {% for value_item in value.items() %}
+				{{ outer_loop(value_item.iteritems()) }}
+				{% if not loop.last %},{% endif %}
+			{% endfor %} ]
+		{% else %}
+		<span>{{ key }}:</span>
+		<span>{{ value }}</span>
+		{% endif %}
+		{% if not loop.last %},{% endif %}
+	{% endfor %}
+{%- endmacro %}

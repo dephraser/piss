@@ -1,7 +1,9 @@
     {% extends "layout.html" %}
+	{% import 'macros.html' as macros %}
     {% block title %}Posts{% endblock %}
     {% block body %}
     	<h1>Posts</h1>
+		{% if items|length %}
 		<dl>
 		{% for item in items %}
 			<dt><a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ item['_id'] }}">{{ item['_id'] }}</a></dt>
@@ -10,19 +12,13 @@
 				{% for key in ['title', 'name', 'description', 'text'] if key in item['content'] %}
 				<span>{{ item['content'][key] }}</span>
 				{% else %}
-					{% for key, value in item['content'].iteritems()|sort recursive %}
-						{% if value is mapping %}
-						<span>{{ key }}:</span>
-						 { {{ loop(value.iteritems()) }} }
-						{% else %}
-						<span>{{ key }}:</span>
-						<span>{{ value }}</span>
-						{% endif %}
-						{% if not loop.last %},{% endif %}
-					{% endfor %}
+					{{ macros.create_nested_spans_from_object(item['content']) }}
 				{% endfor %}
 			</dd>
 			{% endif %}
 		{% endfor %}
 		</dl>
+		{% else %}
+		<p>No items to display!</p>
+		{% endif %}
     {% endblock %}

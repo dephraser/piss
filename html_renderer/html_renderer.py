@@ -69,12 +69,21 @@ def HTML_Renderer(app):
     for code in app.error_handler_spec[None]:
         app.error_handler_spec[None][code] = error_wrapper
     
-    # Create a custom Jinja filter
+    # Create custom Jinja filters
     @app.template_filter('ppjson')
     def json_pretty_print(dictionary):
         if dictionary is None or type(dictionary) is not dict:
             return dictionary
         return json.dumps(dictionary, sort_keys=True, indent=4, separators=(',', ': '))
+    
+    @app.template_filter('basename')
+    def get_basename_from_path(path):
+        return os.path.basename(path)
+    
+    # Jinja test for lists
+    def is_list(value):
+        return isinstance(value, list)
+    app.jinja_env.tests['list'] = is_list
     
     # Set some additional headers for non-XML and non-JSON requests
     @app.after_request

@@ -1,40 +1,18 @@
     {% extends "layout.html" %}
-    {% block title %}{{ item['_id'] }}{% endblock %}
+	{% import 'macros.html' as macros %}
+	{% if '_id' in item %}
+		{% set page_title = item['_id'] %}
+	{% elif 'version' in request.args %}
+		{% set page_title = request.path|basename + ' (versions)' %}
+	{% else %}
+		{% set page_title = request.path|basename %}
+	{% endif %}
+    {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
-		<h1>Post: {{ item['_id'] }}</h1>
+		<h1>Post: {{ page_title }}</h1>
+		{% if content %}
         content:
-		<table class="ink-table">
-		{% for key, value in content.iteritems()|sort recursive %}
-			<tr>
-			{% if value is mapping %}
-				<td colspan="2">
-					{{ key }}
-					<table class="ink-table">
-						{{ loop(value.iteritems()) }}
-					</table>
-				</td>
-			{% else %}
-				<td>{{ key }}:</td>
-				<td><pre class="api-value">{{ value }}</pre></td>
-			{% endif %}
-			</tr>
-		{% endfor %}
-		</table>
-		<table class="ink-table">
-		{% for key, value in item.iteritems()|sort recursive %}
-			<tr>
-			{% if value is mapping %}
-				<td colspan="2">
-					{{ key }}
-					<table class="ink-table">
-						{{ loop(value.iteritems()) }}
-					</table>
-				</td>
-			{% else %}
-				<td>{{ key }}:</td>
-				<td><pre class="api-value">{{ value }}</pre></td>
-			{% endif %}
-			</tr>
-		{% endfor %}
-		</table>
+		{{ macros.create_table_from_object(content) }}
+		{% endif %}
+		{{ macros.create_table_from_object(item) }}
     {% endblock %}
