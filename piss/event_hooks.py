@@ -8,7 +8,7 @@ from eve.render import send_response
 from flask import current_app, request, abort
 from hawk.hcrypto import random_string
 from .utils import NewBase60, get_post_by_id
-from .attachments import save_attachment, get_attachment, delete_attachment
+from .attachments import save_attachment
 
 
 def before_posts_insert(documents):

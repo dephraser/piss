@@ -33,13 +33,18 @@ def save_attachment(file):
         'size': size
     }
     
-def get_attachment(attachment_obj):
+def get_attachment_dir(digest):
     '''
-    Retrieves a file object based on attachment information.
+    Retrieves a directory based on the attachment's digest.
     '''
     attachments_path = get_attachments_path()
-    digest = attachment_obj['digest']
-    return os.path.join(get_tree_path(attachments_path, digest), digest)
+    return get_tree_path(attachments_path, digest)
+
+def get_attachment_file(digest):
+    '''
+    Retrieves a file based on the attachment's digest.
+    '''
+    return os.path.join(get_attachment_dir(digest), digest)
     
 
 def delete_attachment(attachment_obj):
