@@ -113,7 +113,8 @@ def main(action, data, post_type, url, pid,  public, page, file):
         return True
     elif action == 'REGISTER':
         if url:
-            register_app(os.path.join(current_dir, config_file))
+            register_app(url, os.path.join(current_dir, config_file))
+            return True
         else:
             print("You must supply the url of the entity you'd like to register with!")
             return False
