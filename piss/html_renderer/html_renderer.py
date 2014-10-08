@@ -46,8 +46,7 @@ def HTML_Renderer(app):
         else:
             abort(401)
         links = response.pop('_links', {})
-        content = response.pop('content', {})
-        return render_template('%s.html' % (app.config['DOMAIN'][resource]['item_title'],), item=response, content=content, links=links)
+        return render_template('%s.html' % (app.config['DOMAIN'][resource]['item_title'],), item=response, links=links)
 
     @html_renderer_for('error')
     def error_wrapper(error):

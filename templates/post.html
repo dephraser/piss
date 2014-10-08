@@ -10,9 +10,18 @@
     {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
 		<h1>Post: {{ page_title }}</h1>
-		{% if content %}
+		{% if 'content' in item %}
         content:
-		{{ macros.create_table_from_object(content) }}
+		{{ macros.create_table_from_object(item['content']) }}
+		{% endif %}
+		{% if 'attachments' in item %}
+		attachments:
+		{% for attachment in item['attachments'] %}
+		<div>
+			{{ macros.render_attachment(item['_id'], attachment) }}
+		</div>
+		{% endfor %}
+		<br />
 		{% endif %}
 		{{ macros.create_table_from_object(item) }}
     {% endblock %}
