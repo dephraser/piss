@@ -30,7 +30,15 @@ app.on_post_POST_posts += after_posts_post
 # Load some instance configuration settings
 app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'))
 
-# TODO: Make sure all the config settings you need are present
+# Make sure necessary settings exist
+missing_settings = []
+for setting in ('META_POST', 'ROOT_CREDENTIALS', 'SECRET_KEY', 'MENU_ITEMS'):
+    if not app.config.get(setting, None):
+        missing_settings.append(setting)
+if missing_settings:
+    raise SystemExit('Missing configuration settings! (%s)' % (','.join(missing_settings),))
+
+# Make sure necessary directories exist
 if not os.path.isdir(os.path.join(app.instance_path, 'attachments')):
     os.makedirs(os.path.join(app.instance_path, 'attachments'))
 if not os.path.isdir(os.path.join(app.instance_path, 'tmp')):
