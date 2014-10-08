@@ -146,8 +146,16 @@ def main(action, data, post_type, url, pid,  public, page, file):
 
 def register_app(url, config_path):
     res = requests.get(url)
-    if res.status_code == 200 and res.headers and 'link' in res.headers:
-        meta_url = urlparse.urljoin(url, res.headers['link'])
+    if res.status_code == 200 and res.headers and 'link' in res.headers and 'meta-post' in res.headers['link']:
+        # Link headers *may* be a list of comma-separated values...
+        split_links = res.headers['link'].split(',')
+        meta_url_relative = ''
+        for split_link in split_links:
+            if 'meta-post' in split_link:
+                # Meta post links have the format `<url>; rel="meta-post"`
+                meta_url_relative = split_link.split(';')[0]
+                break
+        meta_url = urlparse.urljoin(url, meta_url_relative)
         meta_res = requests.get(meta_url, headers={'accept': 'application/json'})
     else:
         print("Couldn't find a Link header")
