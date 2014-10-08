@@ -3,6 +3,7 @@ from requests_toolbelt import MultipartEncoder
 import json
 import os
 import urlparse
+import mimetypes
 from flask.config import Config
 from hawk.client import header as hawk_header
 from hawk.client import authenticate as hawk_authenticate
@@ -90,7 +91,7 @@ def main(action, data, post_type, url, pid,  public, page, file):
             data['permissions'] = {"public": True}
         
         if file:
-            file_data = (os.path.basename(file), open(file, 'rb'), 'image/png')
+            file_data = (os.path.basename(file), open(file, 'rb'), mimetypes.guess_type(file)[0])
             m = MultipartEncoder(fields={'message': json.dumps(data), 'file': file_data})
             extra_headers = {'Content-Type': m.content_type}
             headers = get_request_headers(url, action, credentials, extra_headers=extra_headers)
