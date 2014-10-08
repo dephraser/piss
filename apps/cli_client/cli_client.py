@@ -20,7 +20,6 @@ def main(action, data, post_type, url, pid,  public, page, file):
     credentials = None
     meta_url = None
     meta_post = None
-    server_types = None
     res = None
     action = action.upper()
     post_type = post_type.lower()
@@ -41,7 +40,6 @@ def main(action, data, post_type, url, pid,  public, page, file):
         credentials = app_config['CREDENTIALS']
         meta_url = app_config['META_URL']
         meta_post = app_config['META_POST']
-        server_types = app_config['SERVER_TYPES']
     except Exception as e:
         if not action == 'REGISTER':
             print("Parameters missing from configuration file! Use `REGISTER --url <url>` to fix!")
@@ -76,17 +74,17 @@ def main(action, data, post_type, url, pid,  public, page, file):
     elif action == 'POST' and data:
         res = requests.post(url, data=data, headers=get_request_headers(url, action, credentials))
     elif action == 'POST' and post_type:
-        if post_type not in server_types:
+        if post_type not in SUPPORTED_TYPES:
             print("Post type not found. Check TYPES to see available post types.")
             return False
         
         data = {
             'entity': meta_post['entity'],
-            'type': "%s/%s" % (meta_post['server']['urls']['types'], post_type),
+            'type': "%s/types/%s" % (meta_post['entity'], post_type),
             'content': {},
             'app': {'name': "PISS CLI"}
         }
-        recursive_input_data(data['content'], server_types[post_type])
+        recursive_input_data(data['content'], SUPPORTED_TYPES[post_type])
         if public:
             data['permissions'] = {"public": True}
         
@@ -114,7 +112,7 @@ def main(action, data, post_type, url, pid,  public, page, file):
         return True
     elif action == 'TYPES':
         print("Types available for this entity:")
-        for key in server_types:
+        for key in SUPPORTED_TYPES:
             print("* %s" % (key,))
         return True
     elif action == 'REGISTER':
@@ -123,14 +121,6 @@ def main(action, data, post_type, url, pid,  public, page, file):
             return True
         else:
             print("You must supply the url of the entity you'd like to register with!")
-            return False
-    elif action == 'UPDATE':
-        try:
-            server_types = get_server_types(meta_post)
-            write_config_file(os.path.join(current_dir, config_file), meta_url, meta_post, server_types, credentials)
-            return True
-        except Exception as e:
-            print("Could not update configuration!")
             return False
     else:
         print('Method not supported.')
@@ -149,13 +139,12 @@ def register_app(url, config_path):
     if res.status_code == 200 and res.headers and 'link' in res.headers and 'meta-post' in res.headers['link']:
         # Link headers *may* be a list of comma-separated values...
         split_links = res.headers['link'].split(',')
-        meta_url_relative = ''
+        meta_url = ''
         for split_link in split_links:
             if 'meta-post' in split_link:
                 # Meta post links have the format `<url>; rel="meta-post"`
-                meta_url_relative = split_link.split(';')[0]
+                meta_url = split_link.split(';')[0]
                 break
-        meta_url = urlparse.urljoin(url, meta_url_relative)
         meta_res = requests.get(meta_url, headers={'accept': 'application/json'})
     else:
         print("Couldn't find a Link header")
@@ -166,8 +155,6 @@ def register_app(url, config_path):
     else:
         print("Couldn't get meta post at %s" % (meta_url,))
         return False
-    
-    server_types = get_server_types(meta_post)
     
     print("Credentials needed before being able to create an app post.")
     cid = raw_input("Credentials ID: ")
@@ -182,22 +169,26 @@ def register_app(url, config_path):
     
     # Create an app post on the server and retrieve the app's credentials
     credentials = get_app_credentials(input_credentials, meta_post)
-    
-    write_config_file(config_path, meta_url, meta_post, server_types, credentials)
+    if credentials:
+        write_config_file(config_path, meta_url, meta_post, credentials)
+    else:
+        print("Couldn't get credentials! Exiting...")
+        return False
     
     return True
 
 def get_app_credentials(input_credentials, meta_post):
     entity = meta_post['entity']
-    types_endpoint = meta_post['server']['urls']['types']
+    types_endpoint = meta_post['entity'] + "/types"
     new_post_endpoint = meta_post['server']['urls']['new_post']
     
     # Attempt to create an app post on the server
     app_post = get_app_post(entity, types_endpoint)
     input_headers = get_request_headers(new_post_endpoint, 'POST', input_credentials)
     input_res = requests.post(new_post_endpoint, data=app_post, headers=input_headers)
+    
     if not input_res.status_code == 201:
-        print("Could not create app post. Server returned: %s" % (input_res.text,))
+        print("Could not create app post. Server returned: \n%s\n%s" % (input_res.headers, input_res.text,))
         return False
     
     # Attempt to get the link header
@@ -207,7 +198,7 @@ def get_app_credentials(input_credentials, meta_post):
             print("Could not retrieve credentials URL. Link header contains: %s" % (link_header,))
             return False
     except Exception as e:
-        print("Could not understand server headers. Server returned: %s" % (root_res.headers,))
+        print("Could not understand server headers. Server returned: \n%s\n%s" % (input_res.headers, input_res.text,))
         return False
     
     # Attempt to get the credentials post
@@ -233,26 +224,6 @@ def get_app_credentials(input_credentials, meta_post):
     
     return credentials
 
-def get_server_types(meta_post):
-    if 'server' in meta_post and 'urls' in meta_post['server'] and 'types' in meta_post['server']['urls']:
-        types_res = requests.get(meta_post['server']['urls']['types'], headers={'accept': 'application/json'})
-    else:
-        print("Incorrectly formatted meta post at %s" % (meta_post['server']['urls']['types'],))
-        return False
-    
-    if types_res.status_code == 200 and types_res.text:
-        post_types = json.loads(types_res.text)
-        post_types = post_types['_items']
-    else:
-        print("Couldn't get list of types at %s" % (meta_post['server']['urls']['types'],))
-        return False
-    
-    server_types = {}
-    for post_type in post_types:
-        server_types[post_type['name']] = post_type['schema']
-    
-    return server_types
-
 def get_app_post(entity, types_endpoint):
     return json.dumps({
     	'entity': str(entity),
@@ -265,12 +236,11 @@ def get_app_post(entity, types_endpoint):
     	}
     })
 
-def write_config_file(config_path, meta_url, meta_post, server_types, credentials):
+def write_config_file(config_path, meta_url, meta_post, credentials):
     try:
         with open(config_path, 'w+') as file:
             file.write("META_URL = '%s'\n\n" % (str(meta_url),))
             file.write("META_POST = %s\n\n" % (str(meta_post),))
-            file.write("SERVER_TYPES = %s\n\n" % (str(server_types),))
             file.write("CREDENTIALS = %s\n" % (str(credentials),))
         
         print("Configuration file saved!")
@@ -334,6 +304,31 @@ def recursive_input_data(data, schema, parent=""):
             data[key] = value
     
     return data
+
+SUPPORTED_TYPES = {
+    'note': {
+        'text': {
+            'type': 'string'
+        }, 
+        'location': {
+            'type': 'dict', 
+            'schema': {
+                'latitude': {
+                    'type': 'string'
+                }, 
+                'altitude': {
+                    'type': 'string'
+                }, 
+                'name': {
+                    'type': 'string'
+                }, 
+                'longitude': {
+                    'type': 'string'
+                }
+            }
+        }
+    }
+}
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
