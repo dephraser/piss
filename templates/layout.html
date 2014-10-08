@@ -69,7 +69,7 @@
 						{% set posts_url = config['META_POST']['server']['urls']['posts_feed'] + '/' %}
 	                    <ul class="menu horizontal black medium-push-right large-push-right xlarge-push-right">
 							{% for menu_item in config['MENU_ITEMS'] %}
-	                        <li><a href="{{ posts_url }}?where={{ '{' }}%22type%22:%22{{ url_for('server.types_item', name=menu_item.type, _external=True) }}%22{{ '}' }}">{{ menu_item.name }}</a></li>
+	                        <li><a href="{{ posts_url }}{{ menu_item.resource_title }}">{{ menu_item.resource_title|capitalize }}</a></li>
 							{% endfor %}
 							<li><a href="{{ posts_url }}">Everything</a></li>
 	                    </ul>

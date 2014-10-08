@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os
+from flask.config import Config
+
 # This turns off the links feature to save some bandwidth / processing. Comment
 # this out if you'd like to navigate the API via a browser
 HATEOAS = True
@@ -228,6 +231,30 @@ posts = {
 DOMAIN = {
     'posts': posts
 }
+
+# Load some additional endpoints based on the server configuration
+instance_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'instance')
+app_config = Config(instance_path)
+app_config.from_pyfile('piss.cfg')
+if 'MENU_ITEMS' in app_config:
+    for menu_item in app_config['MENU_ITEMS']:
+        # Resources created this way will be read-only and accessible under
+        # `/posts/<resource>`
+        key_name = 'posts.' + menu_item['resource_title']
+        DOMAIN[key_name] = {
+            'resource_title': menu_item['resource_title'],
+            'item_title': menu_item['item_title'],
+            'url': 'posts/' + menu_item['resource_title'],
+            'resource_methods': ['GET'],
+            'item_methods': [],
+            'datasource': {
+                'source': 'posts',
+                'default_sort': [('_created', -1)],
+                'filter': {
+                    'type': menu_item['type']
+                }
+            }
+        }
 
 # Enable document version control
 VERSIONING = True
