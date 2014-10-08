@@ -35,7 +35,7 @@ def HTML_Renderer(app):
             abort(401)
         links = response.pop('_links', {})
         items = response.pop('_items', [])
-        return render_template('%s.html' % (resource,), items=items, links=links)
+        return render_template('items.html', items=items, links=links)
 
     @html_renderer_for('item')
     def item_lookup_wrapper(resource, method, **lookup):
@@ -47,7 +47,7 @@ def HTML_Renderer(app):
         else:
             abort(401)
         links = response.pop('_links', {})
-        return render_template('%s.html' % (app.config['DOMAIN'][resource]['item_title'],), item=response, links=links)
+        return render_template('item.html', item=response, links=links)
 
     @html_renderer_for('error')
     def error_wrapper(error):
@@ -78,7 +78,21 @@ def HTML_Renderer(app):
     
     @app.template_filter('basename')
     def get_basename_from_path(path):
-        return os.path.basename(path)
+        '''
+        Get the last node in a path or URL. Strips all slashes from the end
+        of a path before attempting to get the basename.
+        '''
+        new_path = path
+        while len(new_path):
+            if new_path[-1] == '/' or new_path[-1] == '\\':
+                new_path = new_path[:-1]
+            else:
+                break
+        basename = os.path.basename(new_path)
+        if basename:
+            return basename
+        else:
+            return path
     
     # Jinja test for lists
     def is_list(value):

@@ -1,15 +1,17 @@
     {% extends "layout.html" %}
 	{% import 'macros.html' as macros %}
-	{% if '_id' in item %}
-		{% set page_title = item['_id'] %}
+	{% if title %}
+		{% set page_title = title %}
+	{% elif '_id' in item %}
+		{% set page_title = 'Post: ' + item['_id'] %}
 	{% elif 'version' in request.args %}
-		{% set page_title = request.path|basename + ' (versions)' %}
+		{% set page_title = 'Post: ' + request.path|basename + ' (versions)' %}
 	{% else %}
-		{% set page_title = request.path|basename %}
+		{% set page_title = request.path|basename|capitalize %}
 	{% endif %}
     {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
-		<h1>Post: {{ page_title }}</h1>
+		<h1>{{ page_title }}</h1>
 		{% if 'content' in item %}
         content:
 		{{ macros.create_table_from_object(item['content']) }}

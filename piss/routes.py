@@ -15,7 +15,7 @@ def meta():
     Return the `meta` post for the server. Checks the `Accept` header to 
     return a response of the appropriate type.
     '''
-    return render_object_response(current_app.config['META_POST'], 'meta.html')
+    return render_object_response(current_app.config['META_POST'], 'item.html', 'Meta')
 
 @server.route('/types/<name>')
 def types_item(name):
@@ -28,7 +28,7 @@ def types_item(name):
     except Exception as e:
         abort(404)
     type_schema = json.loads(type_schema)
-    return render_object_response(type_schema, 'post.html', name.capitalize())
+    return render_object_response(type_schema, 'item.html', "Type: %s" % (name.capitalize(),))
 
 @server.route('/attachments/<digest>')
 def attachments(digest):

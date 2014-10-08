@@ -1,8 +1,13 @@
     {% extends "layout.html" %}
 	{% import 'macros.html' as macros %}
-    {% block title %}Posts{% endblock %}
+	{% if title %}
+		{% set page_title = title %}
+	{% else %}
+		{% set page_title = request.path|basename|capitalize %}
+	{% endif %}
+    {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
-    	<h1>Posts</h1>
+    	<h1>{{ page_title }}</h1>
 		{% if items|length %}
 		<dl>
 		{% for item in items %}
