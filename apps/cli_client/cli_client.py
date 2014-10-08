@@ -213,11 +213,10 @@ def get_app_credentials(input_credentials, meta_post):
     # Attempt to get the credentials post
     credentials_url = link_header[link_header.find("<")+1:link_header.find(">")]
     
-    # We need to create the root headers again because they depend on the URL
-    input_headers = get_request_headers(credentials_url, 'GET', input_credentials)
-    cred_res = requests.get(credentials_url, headers=input_headers)
+    # Hopefully the credentials URL has a proper bewit
+    cred_res = requests.get(credentials_url, headers=get_request_headers(credentials_url, 'GET', None))
     if not cred_res.status_code == 200:
-        print("Could not get credentials post. Server returned: %s" % (cred_res.text,))
+        print("Could not get credentials post. Server returned: \n%s\n%s" % (str(cred_res.headers), cred_res.text,))
         return False
     
     # Attempt to create credentials from the credentials post

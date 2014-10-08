@@ -7,6 +7,7 @@ from eve.methods.post import post_internal
 from eve.render import send_response
 from flask import current_app, request, abort
 from hawk.hcrypto import random_string
+from hawk.client import get_bewit as hawk_get_bewit
 from .utils import NewBase60, get_post_by_id
 from .attachments import save_attachment
 
@@ -54,13 +55,13 @@ def before_posts_insert(documents):
                 ]
             }
             response, _, _, status = post_internal('posts', credentials_post)
-            document['links'] = [
-                {
+            if not 'links' in document:
+                document['links'] = []
+            document['links'].append({
                     'post': str(response['_id']),
                     'url': str(posts_endpoint + "/" + response['_id']),
                     'type': str(types_endpoint + '/credentials')
-                }
-            ]
+                })
 
 def before_posts_post(request):
     '''
@@ -109,7 +110,16 @@ def after_posts_post(request, payload):
             app_links = app_post['links']
             for link in app_links:
                 if link['type'] == str(types_endpoint + "/credentials"):
-                    payload.headers['Link'] = '<%s>; rel="%s"' % (link['url'], str(types_endpoint + "/credentials"))
+                    # Create a bewit for the credentials post
+                    cid = link['post']
+                    credentials_post = get_post_by_id(cid)
+                    credentials = {
+                        'id': str(cid),
+                        'key': str(credentials_post['content']['hawk_key']),
+                        'algorithm': str(credentials_post['content']['hawk_algorithm'])
+                    }
+                    bewit_url = link['url'] + '?bewit=' + hawk_get_bewit(link['url'], {'credentials': credentials, 'ttl_sec': 60 * 1000})
+                    payload.headers['Link'] = '<%s>; rel="%s"' % (bewit_url, str(types_endpoint + "/credentials"))
                     break
 
 def before_posts_update(updates, original):
