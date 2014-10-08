@@ -25,10 +25,6 @@ posts = {
     'cache_control': 'max-age=10,must-revalidate',
     'cache_expires': 10,
     
-    # This endpoint defaults to private access for all methods
-    'public_methods': [],
-    'public_item_methods': [],
-    
     # Always return the type of the post after a successful `POST`
     'extra_response_fields': ['type'],
     
@@ -239,12 +235,12 @@ app_config.from_pyfile('piss.cfg')
 if 'MENU_ITEMS' in app_config:
     for menu_item in app_config['MENU_ITEMS']:
         # Resources created this way will be read-only and accessible under
-        # `/posts/<resource>`
+        # `/p/<resource>`
         key_name = 'posts.' + menu_item['resource_title']
         DOMAIN[key_name] = {
             'resource_title': menu_item['resource_title'],
             'item_title': menu_item['item_title'],
-            'url': 'posts/' + menu_item['resource_title'],
+            'url': 'p/' + menu_item['resource_title'],
             'resource_methods': ['GET'],
             'item_methods': [],
             'datasource': {
@@ -270,8 +266,8 @@ RESOURCE_METHODS = ['GET', 'POST']
 ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 
 # Grant public access to only the GET methods
-PUBLIC_METHODS = ['GET', 'HEAD']
-PUBLIC_ITEM_METHODS = ['GET', 'HEAD']
+PUBLIC_METHODS = []
+PUBLIC_ITEM_METHODS = []
 
 # DATABASE SETTINGS
 # Let's just use the local mongod instance. Edit as needed.
