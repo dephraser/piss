@@ -1,0 +1,81 @@
+{
+    "entity": {
+        "required": true,
+        "type": "string"
+    },
+    "profile": {
+        "schema": {
+            "cards": {
+                "schema": {
+                    "schema": {
+                        "datum": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "dict"
+                },
+                "type": "list"
+            },
+            "description": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "type": "dict"
+    },
+    "server": {
+        "required": true,
+        "schema": {
+            "preference": {
+                "required": true,
+                "type": "integer"
+            },
+            "urls": {
+                "schema": {
+                    "attachment": {
+                        "required": true,
+                        "type": "string"
+                    },
+                    "new_post": {
+                        "required": true,
+                        "type": "string"
+                    },
+                    "oauth_auth": {
+                        "required": true,
+                        "type": "string"
+                    },
+                    "oauth_token": {
+                        "required": true,
+                        "type": "string"
+                    },
+                    "post": {
+                        "required": true,
+                        "type": "string"
+                    },
+                    "post_attachment": {
+                        "required": true,
+                        "type": "string"
+                    },
+                    "posts_feed": {
+                        "required": true,
+                        "type": "string"
+                    }
+                },
+                "type": "dict"
+            },
+            "version": {
+                "required": true,
+                "type": "string"
+            }
+        },
+        "type": "dict"
+    }
+}

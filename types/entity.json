@@ -1,0 +1,17 @@
+{
+    "entity": {
+        "required": true,
+        "type": "string"
+    },
+    "profile": {
+        "schema": {
+            "description": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "type": "dict"
+    }
+}

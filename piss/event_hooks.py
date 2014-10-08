@@ -5,7 +5,7 @@ import hashlib
 import json
 from eve.methods.post import post_internal
 from eve.render import send_response
-from flask import current_app, request, abort
+from flask import current_app, request, abort, url_for
 from hawk.hcrypto import random_string
 from hawk.client import get_bewit as hawk_get_bewit
 from .utils import NewBase60, get_post_by_id
@@ -14,8 +14,9 @@ from .attachments import save_attachment
 
 def before_posts_insert(documents):
     meta_post = current_app.config.get('META_POST')
-    types_endpoint = meta_post['server']['urls']['types']
     posts_endpoint = meta_post['server']['urls']['posts_feed']
+    app_type = str(url_for('server.types_item', name='app', _external=True))
+    credentials_type = str(url_for('server.types_item', name='credentials', _external=True))
     
     for document in documents:
         # Create version information, but save app version data if present
@@ -28,7 +29,7 @@ def before_posts_insert(documents):
         document['version'] = create_version_document(digest, time_millisec, app_version)
         
         # Create an ID for the document
-        if document['type'] == (types_endpoint + '/credentials'):
+        if document['type'] == credentials_type:
             # Since credentials posts are created automatically by the server,
             # we need to specify their IDs in microseconds
             document['_id'] = str(NewBase60(time_microsec))
@@ -36,12 +37,12 @@ def before_posts_insert(documents):
             document['_id'] = str(NewBase60(time_seconds))
         
         # Additional processing for certain post types
-        if document['type'] == (types_endpoint + '/app'):
+        if document['type'] == app_type:
             # For app posts, we must create an additional credentials post
             # and make sure they link to each other
             credentials_post = {
                 'entity': str(meta_post['entity']),
-                'type': str(types_endpoint + '/credentials'),
+                'type': credentials_type,
                 'content': {
                     'hawk_key': str(random_string(64)),
                     'hawk_algorithm': 'sha256'
@@ -50,7 +51,7 @@ def before_posts_insert(documents):
                     {
                         'post': str(document['_id']),
                         'url': str(posts_endpoint + "/" + document['_id']),
-                        'type': str(types_endpoint + '/app')
+                        'type': app_type
                     }
                 ]
             }
@@ -60,7 +61,7 @@ def before_posts_insert(documents):
             document['links'].append({
                     'post': str(response['_id']),
                     'url': str(posts_endpoint + "/" + response['_id']),
-                    'type': str(types_endpoint + '/credentials')
+                    'type': credentials_type
                 })
 
 def before_posts_post(request):
@@ -99,17 +100,20 @@ def after_posts_post(request, payload):
     post type.
     '''
     meta_post = current_app.config.get('META_POST')
-    types_endpoint = meta_post['server']['urls']['types']
     
     # TODO: Code below needs to account for when the payload is a list
     if payload.status_code == 201:
         payload_data = json.loads(payload.get_data())
-        if payload_data['type'] == str(types_endpoint + "/app"):
+        app_type = str(url_for('server.types_item', name='app', _external=True))
+        print(app_type)
+        print(str(payload_data))
+        if payload_data['type'] == app_type:
             payload_id = payload_data['_id']
             app_post = get_post_by_id(payload_id)
             app_links = app_post['links']
+            credentials_type = str(url_for('server.types_item', name='credentials', _external=True))
             for link in app_links:
-                if link['type'] == str(types_endpoint + "/credentials"):
+                if link['type'] == credentials_type:
                     # Create a bewit for the credentials post
                     cid = link['post']
                     credentials_post = get_post_by_id(cid)
@@ -119,7 +123,7 @@ def after_posts_post(request, payload):
                         'algorithm': str(credentials_post['content']['hawk_algorithm'])
                     }
                     bewit_url = link['url'] + '?bewit=' + hawk_get_bewit(link['url'], {'credentials': credentials, 'ttl_sec': 60 * 1000})
-                    payload.headers['Link'] = '<%s>; rel="%s"' % (bewit_url, str(types_endpoint + "/credentials"))
+                    payload.headers['Link'] = '<%s>; rel="%s"' % (bewit_url, credentials_type)
                     break
 
 def before_posts_update(updates, original):

@@ -1,0 +1,22 @@
+{
+    "location": {
+        "schema": {
+            "altitude": {
+                "type": "string"
+            },
+            "latitude": {
+                "type": "string"
+            },
+            "longitude": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "type": "dict"
+    },
+    "text": {
+        "type": "string"
+    }
+}

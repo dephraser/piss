@@ -20,7 +20,7 @@ def HTML_Renderer(app):
     @html_renderer_for('home')
     def home_wrapper():
         response = make_response(render_template('home.html'))
-        meta_post_link = str(url_for('server.meta')) + '; rel="meta-post"'
+        meta_post_link = str(url_for('server.meta', _external=True)) + '; rel="meta-post"'
         response.headers.add('Link', meta_post_link)
         return response
 

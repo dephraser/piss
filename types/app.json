@@ -1,0 +1,43 @@
+{
+    "description": {
+        "type": "string"
+    },
+    "name": {
+        "required": true,
+        "type": "string"
+    },
+    "notification_types": {
+        "schema": {
+            "type": "string"
+        },
+        "type": "list"
+    },
+    "notification_url": {
+        "type": "string"
+    },
+    "redirect_url": {
+        "required": true,
+        "type": "string"
+    },
+    "types": {
+        "schema": {
+            "read": {
+                "schema": {
+                    "type": "string"
+                },
+                "type": "list"
+            },
+            "write": {
+                "schema": {
+                    "type": "string"
+                },
+                "type": "list"
+            }
+        },
+        "type": "dict"
+    },
+    "url": {
+        "required": true,
+        "type": "string"
+    }
+}

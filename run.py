@@ -32,7 +32,7 @@ app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'))
 
 # Make sure necessary settings exist
 missing_settings = []
-for setting in ('META_POST', 'ROOT_CREDENTIALS', 'SECRET_KEY', 'MENU_ITEMS'):
+for setting in ('META_POST', 'ROOT_CREDENTIALS', 'SECRET_KEY', 'MENU_ITEMS', 'SERVER_NAME'):
     if not app.config.get(setting, None):
         missing_settings.append(setting)
 if missing_settings:
