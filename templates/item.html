@@ -2,8 +2,8 @@
 	{% import 'macros.html' as macros %}
 	{% if title %}
 		{% set page_title = title %}
-	{% elif '_id' in item %}
-		{% set page_title = 'Post: ' + item['_id'] %}
+	{% elif '_id' in obj %}
+		{% set page_title = 'Post: ' + obj['_id'] %}
 	{% elif 'version' in request.args %}
 		{% set page_title = 'Post: ' + request.path|basename + ' (versions)' %}
 	{% else %}
@@ -12,18 +12,18 @@
     {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
 		<h1>{{ page_title }}</h1>
-		{% if 'content' in item %}
+		{% if 'content' in obj %}
         content:
-		{{ macros.create_table_from_object(item['content']) }}
+		{{ macros.create_table_from_object(obj['content']) }}
 		{% endif %}
-		{% if 'attachments' in item %}
+		{% if 'attachments' in obj %}
 		attachments:
-		{% for attachment in item['attachments'] %}
+		{% for attachment in obj['attachments'] %}
 		<div>
-			{{ macros.render_attachment(item['_id'], attachment) }}
+			{{ macros.render_attachment(obj['_id'], attachment) }}
 		</div>
 		{% endfor %}
 		<br />
 		{% endif %}
-		{{ macros.create_table_from_object(item) }}
+		{{ macros.create_table_from_object(obj) }}
     {% endblock %}

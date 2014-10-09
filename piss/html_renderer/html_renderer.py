@@ -35,7 +35,7 @@ def HTML_Renderer(app):
             abort(401)
         links = response.pop('_links', {})
         items = response.pop('_items', [])
-        return render_template('items.html', items=items, links=links)
+        return render_template('items.html', obj=items, links=links)
 
     @html_renderer_for('item')
     def item_lookup_wrapper(resource, method, **lookup):
@@ -47,7 +47,7 @@ def HTML_Renderer(app):
         else:
             abort(401)
         links = response.pop('_links', {})
-        return render_template('item.html', item=response, links=links)
+        return render_template('item.html', obj=response, links=links)
 
     @html_renderer_for('error')
     def error_wrapper(error):

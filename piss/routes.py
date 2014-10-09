@@ -17,6 +17,18 @@ def meta():
     '''
     return render_object_response(current_app.config['META_POST'], 'item.html', 'Meta')
 
+@server.route('/types')
+def types_resource():
+    types_dir = os.path.join(os.path.dirname(current_app.instance_path), 'types')
+    files = []
+    for (_, _, filenames) in os.walk(types_dir):
+        files.extend(filenames)
+        break
+    items = []
+    for file in files:
+        items.append({'_id': file.split('.')[0]})
+    return render_object_response(items, 'items.html', feed_url='%s/types' % (current_app.config['META_POST']['entity'],))
+
 @server.route('/types/<name>')
 def types_item(name):
     types_dir = os.path.join(os.path.dirname(current_app.instance_path), 'types')
@@ -28,7 +40,7 @@ def types_item(name):
     except Exception as e:
         abort(404)
     type_schema = json.loads(type_schema)
-    return render_object_response(type_schema, 'item.html', "Type: %s" % (name.capitalize(),))
+    return render_object_response(type_schema, 'item.html', title="Type: %s" % (name.capitalize(),))
 
 @server.route('/attachments/<digest>')
 def attachments(digest):
@@ -74,7 +86,7 @@ def post_attachment(pid, name):
     digest = attachment['digest']
     return send_from_directory(get_attachment_dir(digest), digest, mimetype=attachment['content_type'])
 
-def render_object_response(obj, template_name, title=None):
+def render_object_response(obj, template_name, **kwargs):
     '''
     Converts a Python object into a suitable response object (JSON, XML, or 
     HTML) depending on the `Accept` header of the request.
@@ -87,4 +99,4 @@ def render_object_response(obj, template_name, title=None):
         response.charset = 'utf-8'
         return response
     else:
-        return render_template(template_name, item=obj, title=title)
+        return render_template(template_name, obj=obj, **kwargs)
