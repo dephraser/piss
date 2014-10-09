@@ -69,7 +69,8 @@
 						{% set posts_url = config['META_POST']['server']['urls']['posts_feed'] + '/' %}
 	                    <ul class="menu horizontal black medium-push-right large-push-right xlarge-push-right">
 							{% for menu_item in config['MENU_ITEMS'] %}
-	                        <li><a href="{{ config['META_POST']['entity'] }}/p/{{ menu_item.resource_title }}">{{ menu_item.resource_title|capitalize }}</a></li>
+                            {% set where_clause = '%22type%22:%22' + menu_item.type + '%22' %}
+	                        <li><a href="{{ config['META_POST']['entity'] }}/posts?where={{ '{' }}{{ where_clause }}{{ '}' }}">{{ menu_item.resource_title|capitalize }}</a></li>
 							{% endfor %}
 							<li><a href="{{ posts_url }}">Everything</a></li>
 	                    </ul>
