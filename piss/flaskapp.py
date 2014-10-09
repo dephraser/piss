@@ -4,6 +4,7 @@ import os
 import json
 from eve import Eve
 from cerberus import Validator
+from flask.config import Config
 from .utils import NewBase60Encoder, NewBase60Validator
 from .auth import HawkAuth
 from .event_hooks import before_posts_insert, before_posts_update, before_posts_get, before_posts_post, after_posts_post
@@ -11,13 +12,28 @@ from .services import services
 from .eve_override import eve_override
 
 
-def PISS(settings, instance_path):
+def PISS(instance_path):
+    # Create a configuration object and read the configuration file
+    app_config = Config(instance_path)
+    app_config.from_pyfile('piss.cfg')
+    
+    # If `EVE_SETTINGS` exists and points to valid file, use that instead of
+    # the default `settings.py`
+    alt_settings = app_config.get('EVE_SETTINGS', None)
+    if alt_settings and os.path.isfile(alt_settings):
+        settings_file = alt_settings
+    else:
+        settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'settings.py')
+    
     # Create the app instance
-    app = Eve(settings=settings, 
+    app = Eve(settings=settings_file, 
               json_encoder=NewBase60Encoder, 
               validator=NewBase60Validator,
               auth=HawkAuth,
               instance_path=instance_path)
+    
+    # Update the app's config object with our settings
+    app.config.update(**dict(app_config))
     
     # Add event hooks
     app.on_insert_posts += before_posts_insert
@@ -25,9 +41,6 @@ def PISS(settings, instance_path):
     app.on_pre_GET_posts += before_posts_get
     app.on_pre_POST_posts += before_posts_post
     app.on_post_POST_posts += after_posts_post
-
-    # Load some instance configuration settings
-    app.config.from_pyfile(os.path.join(instance_path, 'piss.cfg'))
 
     # Make sure necessary settings exist
     missing_settings = []

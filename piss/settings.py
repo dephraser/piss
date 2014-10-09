@@ -243,15 +243,4 @@ PUBLIC_METHODS = []
 PUBLIC_ITEM_METHODS = []
 
 # DATABASE SETTINGS
-# Let's just use the local mongod instance. Edit as needed.
-
-# Please note that MONGO_HOST and MONGO_PORT could very well be left
-# out as they already default to a bare bones local 'mongod' instance.
-MONGO_HOST = 'localhost'
-MONGO_PORT = 27017
-
-# If you don't create a database and associated users, Eve will simply create
-# an `eve` database in Mongo
-#MONGO_USERNAME = 'user'
-#MONGO_PASSWORD = 'user'
 MONGO_DBNAME = 'piss'
