@@ -8,7 +8,7 @@ from eve.methods import get, getitem
 from .decorators import html_renderer_for
 
 
-def HTML_Renderer(app):
+def eve_override(app):
     # Set directory for HTML templates
     templates_path = os.path.join(os.path.dirname(app.instance_path), 'templates')
     app.jinja_loader = jinja2.FileSystemLoader(templates_path)
@@ -20,7 +20,7 @@ def HTML_Renderer(app):
     @html_renderer_for('home')
     def home_wrapper():
         response = make_response(render_template('home.html'))
-        meta_post_link = str(url_for('server.meta', _external=True)) + '; rel="meta-post"'
+        meta_post_link = str(url_for('services.meta', _external=True)) + '; rel="meta-post"'
         response.headers.add('Link', meta_post_link)
         return response
 

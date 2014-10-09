@@ -15,8 +15,8 @@ from .attachments import save_attachment
 def before_posts_insert(documents):
     meta_post = current_app.config.get('META_POST')
     posts_endpoint = meta_post['server']['urls']['posts_feed']
-    app_type = str(url_for('server.types_item', name='app', _external=True))
-    credentials_type = str(url_for('server.types_item', name='credentials', _external=True))
+    app_type = str(url_for('services.types_item', name='app', _external=True))
+    credentials_type = str(url_for('services.types_item', name='credentials', _external=True))
     
     for document in documents:
         # Create version information, but save app version data if present
@@ -104,14 +104,14 @@ def after_posts_post(request, payload):
     # TODO: Code below needs to account for when the payload is a list
     if payload.status_code == 201:
         payload_data = json.loads(payload.get_data())
-        app_type = str(url_for('server.types_item', name='app', _external=True))
+        app_type = str(url_for('services.types_item', name='app', _external=True))
         print(app_type)
         print(str(payload_data))
         if payload_data['type'] == app_type:
             payload_id = payload_data['_id']
             app_post = get_post_by_id(payload_id)
             app_links = app_post['links']
-            credentials_type = str(url_for('server.types_item', name='credentials', _external=True))
+            credentials_type = str(url_for('services.types_item', name='credentials', _external=True))
             for link in app_links:
                 if link['type'] == credentials_type:
                     # Create a bewit for the credentials post

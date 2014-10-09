@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import functools
-from flask import request
 from eve.endpoints import collections_endpoint, item_endpoint, home_endpoint, error_endpoint
 from eve.utils import request_method
+from piss.utils import request_is_xml, request_is_json, _resource
 
 # Outer decorator allows me to supply an argument
 def html_renderer_for(request_type):
@@ -38,24 +38,3 @@ def html_renderer_for(request_type):
         
         return wrapper
     return dispatch_request_by_type
-
-# Websites serve content from a variety of different mime-types, i.e. 
-# images, css files, etc. Rather than check for every possible file type,
-# check only for XML and JSON so that Eve can handle them, and assume
-# everything else is sent to the HTML renderer.
-def request_is_xml():
-    best = request.accept_mimetypes \
-        .best_match(['application/xml', 'text/html'])
-    return best == 'application/xml' and \
-        request.accept_mimetypes[best] > \
-        request.accept_mimetypes['text/html']
-
-def request_is_json():
-    best = request.accept_mimetypes \
-        .best_match(['application/json', 'text/html'])
-    return best == 'application/json' and \
-        request.accept_mimetypes[best] > \
-        request.accept_mimetypes['text/html']
-
-def _resource():
-    return request.endpoint.split('|')[0]

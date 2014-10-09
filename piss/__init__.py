@@ -10,4 +10,6 @@
 
 """
 
+from .flaskapp import PISS
+
 __version__ = '0.1-dev'

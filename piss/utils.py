@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from flask import current_app
+from flask import current_app, request
 from eve.io.mongo import MongoJSONEncoder
 from eve.io.mongo import Validator
 
 class NewBase60(object):
+    '''
+    An object that can accept an integer and save it internally as a NewBase60
+    string, or vice versa. Type-casting a NewBase60 object to an `int` or a
+    `str` will return the appropriate result.
+    '''
     def __init__(self, integer=None, string=None):
         self._integer = integer
         self._string = string
@@ -89,4 +94,30 @@ def get_post_by_id(post_id):
         return False
     else:
         return post
-    
+
+def request_is_xml():
+    '''
+    Analyze the request object and determine if the headers indicate XML.
+    '''
+    best = request.accept_mimetypes \
+        .best_match(['application/xml', 'text/html'])
+    return best == 'application/xml' and \
+        request.accept_mimetypes[best] > \
+        request.accept_mimetypes['text/html']
+
+def request_is_json():
+    '''
+    Analyze the request object and determine if the headers indicate JSON.
+    '''
+    best = request.accept_mimetypes \
+        .best_match(['application/json', 'text/html'])
+    return best == 'application/json' and \
+        request.accept_mimetypes[best] > \
+        request.accept_mimetypes['text/html']
+
+def _resource():
+    '''
+    Internally, endpoints use the pipe character to separate the resource name
+    from its handler function.
+    '''
+    return request.endpoint.split('|')[0]

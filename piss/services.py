@@ -4,20 +4,20 @@ import os
 import json
 from flask import Blueprint, jsonify, current_app, make_response, render_template, send_from_directory, abort
 from eve.render import render_xml
-from .html_renderer.decorators import request_is_json, request_is_xml
+from .utils import request_is_json, request_is_xml
 from .attachments import get_attachment_dir
 
-server = Blueprint('server', __name__)
+services = Blueprint('services', __name__)
 
-@server.route('/meta')
+@services.route('/meta')
 def meta():
     '''
     Return the `meta` post for the server. Checks the `Accept` header to 
     return a response of the appropriate type.
     '''
-    return render_object_response(current_app.config['META_POST'], 'item.html', 'Meta')
+    return render_object_response(current_app.config['META_POST'], 'item.html', title='Meta')
 
-@server.route('/types')
+@services.route('/types')
 def types_resource():
     types_dir = os.path.join(os.path.dirname(current_app.instance_path), 'types')
     files = []
@@ -29,7 +29,7 @@ def types_resource():
         items.append({'_id': file.split('.')[0]})
     return render_object_response(items, 'items.html', feed_url='%s/types' % (current_app.config['META_POST']['entity'],))
 
-@server.route('/types/<name>')
+@services.route('/types/<name>')
 def types_item(name):
     types_dir = os.path.join(os.path.dirname(current_app.instance_path), 'types')
     type_file = name + '.json'
@@ -42,7 +42,7 @@ def types_item(name):
     type_schema = json.loads(type_schema)
     return render_object_response(type_schema, 'item.html', title="Type: %s" % (name.capitalize(),))
 
-@server.route('/attachments/<digest>')
+@services.route('/attachments/<digest>')
 def attachments(digest):
     '''
     Given an attachment digest, find a post that lists the digest in its 
@@ -67,7 +67,7 @@ def attachments(digest):
         abort(404)
     return send_from_directory(get_attachment_dir(digest), digest, mimetype=attachment['content_type'])
 
-@server.route('/posts/<pid>/<name>')
+@services.route('/posts/<pid>/<name>')
 def post_attachment(pid, name):
     '''
     Given a post ID and file name, retrieve the post, find the matching 
