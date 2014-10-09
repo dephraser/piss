@@ -5,13 +5,16 @@
 	{% else %}
 		{% set page_title = request.path|basename|capitalize %}
 	{% endif %}
+    {% if not feed_url %}
+        {% set feed_url = config['META_POST']['server']['urls']['posts_feed'] %}
+    {% endif %}
     {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
     	<h1>{{ page_title }}</h1>
-		{% if items|length %}
+		{% if obj|length %}
 		<dl>
-		{% for item in items %}
-			<dt><a href="{{ config['META_POST']['server']['urls']['posts_feed'] }}/{{ item['_id'] }}">{{ item['_id'] }}</a></dt>
+		{% for item in obj %}
+			<dt><a href="{{ feed_url }}/{{ item['_id'] }}">{{ item['_id'] }}</a></dt>
 			{% if 'content' in item %}
 			<dd>
 				{% for key in ['title', 'name', 'description', 'text'] if key in item['content'] %}
