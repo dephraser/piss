@@ -9,6 +9,9 @@ from hawk.client import header as hawk_header
 from hawk.client import authenticate as hawk_authenticate
 from hawk.client import get_bewit as hawk_get_bewit
 
+# Bewits will be valid for 1 hour
+BEWIT_TTL = 60 * 60
+
 def main(action, data, post_type, url, pid,  public, page, file):
     """
     Access and modify data from a PISS server on the command line.
@@ -21,6 +24,7 @@ def main(action, data, post_type, url, pid,  public, page, file):
     meta_url = None
     meta_post = None
     res = None
+    default_url = False
     action = action.upper()
     post_type = post_type.lower()
     
@@ -47,6 +51,7 @@ def main(action, data, post_type, url, pid,  public, page, file):
     
     # Grab the URL from the meta post if it wasn't set
     if not url:
+        default_url = True
         url = meta_post['server']['urls']['posts_feed']
     
     # Add an ID to the url if specified
@@ -107,8 +112,18 @@ def main(action, data, post_type, url, pid,  public, page, file):
         etag = get_etag(url, get_request_headers(url, 'GET', credentials))
         res = requests.delete(url, headers=get_request_headers(url, action, credentials, etag))
     elif action == 'BEWIT':
+        if default_url:
+            print("You must specify a URL with `BEWIT --url <url>`!")
+            return False
+        url = url.rstrip('/')
+        if url == meta_post['server']['urls']['posts_feed'] or url == meta_post['entity']:
+            print("Use bewits only for specific posts!")
+            return False
+        if '?' in url:
+            print("Can't make bewits for queries!")
+            return False
         print("Bewit URL: ")
-        print(url + '?bewit=' + hawk_get_bewit(url, {'credentials': credentials, 'ttl_sec': 60 * 1000}))
+        print(url + '?bewit=' + hawk_get_bewit(url, {'credentials': credentials, 'ttl_sec': BEWIT_TTL}))
         return True
     elif action == 'TYPES':
         print("Types available for this entity:")
