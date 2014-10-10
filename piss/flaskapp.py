@@ -7,7 +7,8 @@ from cerberus import Validator
 from flask.config import Config
 from .utils import NewBase60Encoder, NewBase60Validator
 from .auth import HawkAuth
-from .event_hooks import before_posts_insert, before_posts_update, before_posts_get, before_posts_post, after_posts_post
+from .event_hooks import before_insert_posts, before_update_posts, after_fetched_item_posts, \
+                            before_GET_posts, before_POST_posts, after_POST_posts
 from .services import services
 from .eve_override import eve_override
 
@@ -36,11 +37,12 @@ def PISS(instance_path):
     app.config.update(**dict(app_config))
     
     # Add event hooks
-    app.on_insert_posts += before_posts_insert
-    app.on_update_posts += before_posts_update
-    app.on_pre_GET_posts += before_posts_get
-    app.on_pre_POST_posts += before_posts_post
-    app.on_post_POST_posts += after_posts_post
+    app.on_insert_posts += before_insert_posts
+    app.on_update_posts += before_update_posts
+    app.on_fetched_item_posts += after_fetched_item_posts
+    app.on_pre_GET_posts += before_GET_posts
+    app.on_pre_POST_posts += before_POST_posts
+    app.on_post_POST_posts += after_POST_posts
 
     # Make sure necessary settings exist
     missing_settings = []

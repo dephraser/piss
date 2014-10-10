@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from eve.auth import HMACAuth
-from flask import current_app, request
+from flask import current_app, request, g
 import hawk
 from hawk.util import HawkException
-from .utils import get_post_by_id
+from .utils import get_post_by_id, is_collection_path
 
 def get_credentials_from_post_id(cid):
     '''
@@ -30,7 +30,7 @@ def get_credentials_from_post_id(cid):
     }
 
 class HawkAuth(HMACAuth):
-    def check_auth(self, http_auth, host, port, path, query_string, allowed_roles, resource, method):
+    def check_auth(self, http_auth, host, port, path, query_string, allowed_roles, method):
         req = {
             'method': method,
             'url': '%s?%s' % (path, query_string,),
@@ -46,7 +46,7 @@ class HawkAuth(HMACAuth):
         try:
             if 'bewit=' in query_string:
                 # Never accept bewits for collections. Just say no.
-                if path_is_collection(path, resource):
+                if is_collection_path(path):
                     return False
                 if server.authenticate_bewit(options):
                     return True
@@ -79,22 +79,11 @@ class HawkAuth(HMACAuth):
                 host, port = request.environ['HTTP_HOST'].split(':')
             
             return self.check_auth(http_auth, host, port, path, query_string,
-                                        allowed_roles, resource, method)
+                                        allowed_roles, method)
         else:
-            
-            
-            # Return True for `GET` requests to collections. These will be
-            # picked up by an event hook to display only public posts
-            if path_is_collection(path, resource) and method == 'GET':
+            # Return True for `GET` requests but set a flag so that event
+            # hooks are wary and can filter the request appropriately.
+            if method == 'GET':
+                g.non_authed_GET = True
                 return True
             return False
-
-def path_is_collection(path, resource):
-    '''
-    Determines if the specified path points to a resource collection.
-    '''
-    # Strip start and end slashes and split by any slashes that remain
-    path_split = path.rstrip('/').lstrip('/').split('/')
-    if len(path_split) == 1 and path_split[0] == resource:
-        return True
-    return False

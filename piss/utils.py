@@ -95,6 +95,23 @@ def get_post_by_id(post_id):
     else:
         return post
 
+def is_collection_request(request):
+    '''
+    Determines if the specified request points to a resource collection.
+    '''
+    path = request.environ['PATH_INFO']
+    return is_collection_path(path)
+
+def is_collection_path(path):
+    '''
+    Determines if the specified request points to a resource collection.
+    '''
+    # Strip start and end slashes and split by any slashes that remain
+    path_split = path.rstrip('/').lstrip('/').split('/')
+    if len(path_split) == 1 and path_split[0] in current_app.config['DOMAIN']:
+        return True
+    return False
+
 def request_is_xml():
     '''
     Analyze the request object and determine if the headers indicate XML.

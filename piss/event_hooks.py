@@ -5,14 +5,16 @@ import hashlib
 import json
 from eve.methods.post import post_internal
 from eve.render import send_response
-from flask import current_app, request, abort, url_for
+from flask import current_app, request, abort, url_for, Response, g
 from hawk.hcrypto import random_string
 from hawk.client import get_bewit as hawk_get_bewit
-from .utils import NewBase60, get_post_by_id
+from .utils import NewBase60, is_collection_request
 from .attachments import save_attachment
 
+# Bewits are good for 1 hour
+BEWIT_TTL = 60 * 60
 
-def before_posts_insert(documents):
+def before_insert_posts(documents):
     meta_post = current_app.config.get('META_POST')
     posts_endpoint = meta_post['server']['urls']['posts_feed']
     app_type = str(url_for('services.types_item', name='app', _external=True))
@@ -40,12 +42,14 @@ def before_posts_insert(documents):
         if document['type'] == app_type:
             # For app posts, we must create an additional credentials post
             # and make sure they link to each other
+            hawk_key = str(random_string(64))
+            hawk_algorithm = 'sha256'
             credentials_post = {
                 'entity': str(meta_post['entity']),
                 'type': credentials_type,
                 'content': {
-                    'hawk_key': str(random_string(64)),
-                    'hawk_algorithm': 'sha256'
+                    'hawk_key': hawk_key,
+                    'hawk_algorithm': hawk_algorithm
                 },
                 'links': [
                     {
@@ -58,13 +62,49 @@ def before_posts_insert(documents):
             response, _, _, status = post_internal('posts', credentials_post)
             if not 'links' in document:
                 document['links'] = []
+            cred_id = str(response['_id'])
+            cred_url = str(posts_endpoint + "/" + cred_id)
             document['links'].append({
-                    'post': str(response['_id']),
-                    'url': str(posts_endpoint + "/" + response['_id']),
+                    'post': cred_id,
+                    'url': cred_url,
                     'type': credentials_type
                 })
+            # Create a signal to change the POST response envelope
+            g.app_POST = True
+            credentials = {
+                'id': cred_id,
+                'key': hawk_key,
+                'algorithm': hawk_algorithm
+            }
+            g.cred_bewit_url = cred_url + '?bewit=' + hawk_get_bewit(cred_url, {'credentials': credentials, 'ttl_sec': BEWIT_TTL})
 
-def before_posts_post(request):
+def before_update_posts(updates, original):
+    # Create an updated version of the original *without* the `version` field,
+    # but save app version data if present
+    current_time = int(time.time())
+    app_version = get_app_version(updates)
+    updated = original.copy()
+    updated.update(updates)
+    try:
+        del(updated['version'])
+    except KeyError as e:
+        # Weird that it didn't have it, but just as well
+        pass
+    
+    # Create version information and append it to the updates
+    digest = create_version_digest(updated)
+    updates['version'] = create_version_document(digest, current_time, app_version)
+
+def after_fetched_item_posts(response):
+    '''
+    Inspect an item after it has been fetched and reject the request if a 
+    non-authorized request has been made on a private post.
+    '''
+    if getattr(g, 'non_authed_GET', False):
+        if not 'permissions' in response or not response['permissions'].get('public', False):
+            authenticate()
+
+def before_POST_posts(request):
     '''
     Callback to be executed before documents have been validated. Primarily used
     to handle multipart form data.
@@ -93,7 +133,7 @@ def before_posts_post(request):
         # create our own response.
         abort(send_response('posts', response))
 
-def after_posts_post(request, payload):
+def after_POST_posts(request, payload):
     '''
     Callback to be executed after documents have been inserted into the 
     database. Primarily used to change the response envelope depending on the
@@ -102,61 +142,35 @@ def after_posts_post(request, payload):
     meta_post = current_app.config.get('META_POST')
     
     # TODO: Code below needs to account for when the payload is a list
-    if payload.status_code == 201:
-        payload_data = json.loads(payload.get_data())
-        app_type = str(url_for('services.types_item', name='app', _external=True))
-        print(app_type)
-        print(str(payload_data))
-        if payload_data['type'] == app_type:
-            payload_id = payload_data['_id']
-            app_post = get_post_by_id(payload_id)
-            app_links = app_post['links']
-            credentials_type = str(url_for('services.types_item', name='credentials', _external=True))
-            for link in app_links:
-                if link['type'] == credentials_type:
-                    # Create a bewit for the credentials post
-                    cid = link['post']
-                    credentials_post = get_post_by_id(cid)
-                    credentials = {
-                        'id': str(cid),
-                        'key': str(credentials_post['content']['hawk_key']),
-                        'algorithm': str(credentials_post['content']['hawk_algorithm'])
-                    }
-                    bewit_url = link['url'] + '?bewit=' + hawk_get_bewit(link['url'], {'credentials': credentials, 'ttl_sec': 60 * 1000})
-                    payload.headers['Link'] = '<%s>; rel="%s"' % (bewit_url, credentials_type)
-                    break
+    if payload.status_code == 201 and getattr(g, 'app_POST', False):
+        link_header = ''
+        credentials_type = str(url_for('services.types_item', name='credentials', _external=True))
+        if 'Link' in payload.headers:
+            link_header = '%s,' % (payload.headers['Link'],)
+        payload.headers['Link'] = link_header + '<%s>; rel="%s"' % (getattr(g, 'cred_bewit_url'), credentials_type)
 
-def before_posts_update(updates, original):
-    # Create an updated version of the original *without* the `version` field,
-    # but save app version data if present
-    current_time = int(time.time())
-    app_version = get_app_version(updates)
-    updated = original.copy()
-    updated.update(updates)
-    try:
-        del(updated['version'])
-    except KeyError as e:
-        # Weird that it didn't have it, but just as well
-        pass
-    
-    # Create version information and append it to the updates
-    digest = create_version_digest(updated)
-    updates['version'] = create_version_document(digest, current_time, app_version)
-
-def before_posts_get(request, lookup):
+def before_GET_posts(request, lookup):
     '''
-    Before performing a GET request, check the authorization headers. If no
-    auth headers are found or the auth is an incorrect type, set the lookup to
-    find only public posts.
+    If an non-authorized request is being attempted on a collection, set the 
+    lookup to find only public posts.
     '''
-    http_auth = request.headers.get('Authorization')
-    bewit_query = request.args.get('bewit')
-    if not http_auth and not bewit_query:
+    if getattr(g, 'non_authed_GET', False) and is_collection_request(request):
         lookup['permissions'] = {'public': True}
+                
 
 # -----------------------------------------------------------------------------
 # Event hook utilities
 # -----------------------------------------------------------------------------
+
+def authenticate():
+    '''
+    Copied from Eve's `BasicAuth` class. Used as a final layer of defense when
+    a non-authenticated request to a private resource is made.
+    '''
+    resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm:"%s"' %
+                                __package__})
+    abort(401, description='Please provide proper credentials',
+          response=resp)
 
 def create_version_digest(document):
     hasher = hashlib.sha512()
