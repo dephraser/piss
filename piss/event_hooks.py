@@ -101,8 +101,17 @@ def after_fetched_item_posts(response):
     non-authorized request has been made on a private post.
     '''
     if getattr(g, 'non_authed_GET', False):
-        if not 'permissions' in response or not response['permissions'].get('public', False):
-            authenticate()
+        if '_items' in response:
+            if request.args.get('version', '') == 'diffs':
+                # Diffs may omit the permissions document if it has never
+                # changed, so we can't show them on public requests
+                abort(400, description="Version diffs not supported for unauthenticated requests.")
+            # Respect the permissions of the latest version
+            if not is_public_post(response['_items'][len(response['_items']) - 1]):
+                authenticate()
+        else:
+            if not is_public_post(response):
+                authenticate()
 
 def before_POST_posts(request):
     '''
@@ -171,6 +180,12 @@ def authenticate():
                                 __package__})
     abort(401, description='Please provide proper credentials',
           response=resp)
+
+def is_public_post(post):
+    '''
+    Test to see if a post is marked as public.
+    '''
+    return 'permissions' in post and post['permissions'].get('public', False)
 
 def create_version_digest(document):
     hasher = hashlib.sha512()

@@ -2,7 +2,8 @@
 
 import os
 import json
-from flask import Blueprint, jsonify, current_app, make_response, render_template, send_from_directory, abort
+from flask import Blueprint, jsonify, current_app, make_response, render_template, send_from_directory, abort, request
+from eve.methods import getitem
 from eve.render import render_xml
 from .utils import request_is_json, request_is_xml
 from .attachments import get_attachment_dir
@@ -48,7 +49,6 @@ def attachments(digest):
     Given an attachment digest, find a post that lists the digest in its 
     `attachments` array and return the relevant file.
     '''
-    posts = current_app.data.driver.db['posts']
     lookup = {
         'attachments': {
             '$elemMatch': {
@@ -56,15 +56,7 @@ def attachments(digest):
             }
         }
     }
-    attachment_post = posts.find_one(lookup)
-    if not attachment_post:
-        abort(404)
-    for attachment in attachment_post['attachments']:
-        if attachment['digest'] == digest:
-            break
-    else:
-        # We never found a matching digest -- abort
-        abort(404)
+    attachment = get_attachment('digest', digest, lookup)
     return send_from_directory(get_attachment_dir(digest), digest, mimetype=attachment['content_type'])
 
 @services.route('/posts/<pid>/<name>')
@@ -73,18 +65,28 @@ def post_attachment(pid, name):
     Given a post ID and file name, retrieve the post, find the matching 
     attachment, and return the relevant file.
     '''
-    posts = current_app.data.driver.db['posts']
-    attachment_post = posts.find_one({'_id': pid})
-    if not attachment_post:
-        abort(404)
-    for attachment in attachment_post['attachments']:
-        if attachment['name'] == name:
-            break
-    else:
-        # We never found a matching name -- abort
-        abort(404)
+    attachment = get_attachment('name', name, {'_id': pid})
     digest = attachment['digest']
     return send_from_directory(get_attachment_dir(digest), digest, mimetype=attachment['content_type'])
+
+def get_attachment(key, value, lookup):
+    '''
+    Performs a lookup for a particular post and returns an attachment document 
+    if one of its keys matches the given value. Also makes sure to reject
+    `version` requests that would be impossible to fulfill.
+    '''
+    if 'version' in request.args and request.args['version'] in ('all', 'diffs'):
+        abort(400)
+    post, _, _, _ = getitem('posts', lookup)
+    if not post:
+        abort(404)
+    for attachment in post['attachments']:
+        if attachment[key] == value:
+            break
+    else:
+        # We never found a matching digest -- abort
+        abort(404)
+    return attachment
 
 def render_object_response(obj, template_name, **kwargs):
     '''
