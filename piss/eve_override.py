@@ -10,11 +10,11 @@ from .decorators import html_renderer_for
 
 def eve_override(app):
     # Set directory for HTML templates
-    templates_path = os.path.join(os.path.dirname(app.instance_path), 'templates')
+    templates_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates')
     app.jinja_loader = jinja2.FileSystemLoader(templates_path)
     
     # Set directory for static files
-    app.static_folder = os.path.join(os.path.dirname(app.instance_path), 'static')
+    app.static_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static')
     
     # Routes
     @html_renderer_for('home')

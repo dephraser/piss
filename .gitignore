@@ -1,6 +1,8 @@
 *.cfg
 *.py[cod]
 instance/
+themes/*
+!themes/README.md
 
 # C extensions
 *.so

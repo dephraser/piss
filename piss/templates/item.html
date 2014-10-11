@@ -12,18 +12,5 @@
     {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
 		<h1>{{ page_title }}</h1>
-		{% if 'content' in obj %}
-        content:
-		{{ macros.create_table_from_object(obj['content']) }}
-		{% endif %}
-		{% if 'attachments' in obj %}
-		attachments:
-		{% for attachment in obj['attachments'] %}
-		<div>
-			{{ macros.render_attachment(obj['_id'], attachment) }}
-		</div>
-		{% endfor %}
-		<br />
-		{% endif %}
 		{{ macros.create_table_from_object(obj) }}
     {% endblock %}

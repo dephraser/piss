@@ -15,15 +15,12 @@
 		<dl>
 		{% for item in obj %}
 			<dt><a href="{{ feed_url }}/{{ item['_id'] }}">{{ item['_id'] }}</a></dt>
-			{% if 'content' in item %}
 			<dd>
-				{% for key in ['title', 'name', 'description', 'text'] if key in item['content'] %}
-				<span>{{ item['content'][key] }}</span>
-				{% else %}
-					{{ macros.create_nested_spans_from_object(item['content']) }}
-				{% endfor %}
+                <ul class="unstyled note">
+                    <li>Last Updated: {{ item['_updated'] }}</li>
+                    <li>Type: {{ item['type'] }}</li>
+                </ul>
 			</dd>
-			{% endif %}
 		{% endfor %}
 		</dl>
 		{% else %}
