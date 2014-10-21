@@ -12,7 +12,12 @@ Yes, really. I feel like using a non-PC name keeps me honest: this project is de
 
 ## Status
 
-Just ideas at the moment.
+  * RESTful server that can display data in JSON, XML, and JSON format
+  * Hawk authentication in order to create/modify/delete posts and to retrieve private posts
+  * Definition of basic post types
+  * Reference CLI app
+
+Check the [issue tracker](https://github.com/jenmontes/piss/issues) to get a sense for what I'm currently working on.
 
 ## Installation
 
@@ -23,7 +28,7 @@ Once your database is up and running:
   1. Clone the PISS repository and `cd` into it
   2. Create a virtual environment with `virtualenv` and activate it
   3. Install the requirements found in `requirements.txt` via `pip`
-  4. Start a local PISS server with `python piss.py`
+  4. Start a local PISS server with `python run.py`
   
 Your server should now be available at [http://127.0.0.1:5000](http://127.0.0.1:5000). Running a production instance is out of the scope of this doc, but check out the [Flask](flask.pocoo.org) documentation for more information.
 
