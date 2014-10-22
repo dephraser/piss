@@ -12,7 +12,7 @@ Yes, really. I feel like using a non-PC name keeps me honest: this project is de
 
 ## Status
 
-  * RESTful server that can display data in JSON, XML, and JSON format
+  * RESTful server that can display data in JSON, XML, and HTML format
   * Hawk authentication in order to create/modify/delete posts and to retrieve private posts
   * Definition of basic post types
   * Reference CLI app
