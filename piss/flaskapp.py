@@ -31,7 +31,8 @@ def PISS(instance_path):
               json_encoder=NewBase60Encoder, 
               validator=NewBase60Validator,
               auth=HawkAuth,
-              instance_path=instance_path)
+              instance_path=instance_path,
+              static_folder=None)
     
     # Update the app's config object with our settings
     app.config.update(**dict(app_config))

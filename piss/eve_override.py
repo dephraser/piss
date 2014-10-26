@@ -2,19 +2,20 @@
 
 import os
 import jinja2
-from flask import Flask, request, render_template, abort, url_for, make_response
+from flask import Flask, request, render_template, abort, url_for, make_response, send_from_directory
+from werkzeug.utils import secure_filename
 from eve.methods import get, getitem
 from eve.render import raise_event
 from .decorators import html_renderer_for
 
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+ROOT_DIR = os.path.dirname(CURRENT_DIR)
+
 
 def eve_override(app):
     # Set directory for HTML templates
-    templates_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates')
+    templates_path = os.path.join(CURRENT_DIR, 'templates')
     app.jinja_loader = jinja2.FileSystemLoader(templates_path)
-    
-    # Set directory for static files
-    app.static_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static')
     
     # Routes
     @html_renderer_for('home')
@@ -82,6 +83,36 @@ def eve_override(app):
     def is_list(value):
         return isinstance(value, list)
     app.jinja_env.tests['list'] = is_list
+    
+    # Theme override
+    current_theme = app.config.get('THEME', 'default')
+    if not current_theme == 'default':
+        theme_templates = os.path.join(ROOT_DIR, 'themes', current_theme, 'templates')
+        if os.path.isdir(theme_templates):
+            theme_loader = jinja2.ChoiceLoader([
+                jinja2.FileSystemLoader(theme_templates),
+                app.jinja_loader
+            ])
+            app.jinja_loader = theme_loader
+
+    @app.route('/static/<path:filename>')
+    def static(filename):
+        '''
+        Override Flask's default `static` function in order to look for files
+        in a theme's `static` folder. If the file isn't found (or no theme is
+        set), fetch the file from the default `static` folder.
+
+        :param filename: the name of the file to fetch.
+        '''
+        path, filename = os.path.split(filename)
+        filename = secure_filename(filename)
+        current_theme = app.config.get('THEME', 'default')
+        if not current_theme == 'default':
+            theme_path = os.path.join(ROOT_DIR, 'themes', current_theme, 'static', path)
+            if os.path.isfile(os.path.join(theme_path, filename)):
+                return send_from_directory(theme_path, filename)
+        static_path = os.path.join(CURRENT_DIR, 'static', path)
+        return send_from_directory(static_path, filename)
     
     # Set some additional headers for non-XML and non-JSON requests
     @app.after_request
