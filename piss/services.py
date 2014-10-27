@@ -2,10 +2,12 @@
 
 import os
 import json
+from twython import Twython
 from flask import Blueprint, jsonify, current_app, make_response, render_template, send_from_directory, abort, request
 from eve.methods import getitem
+from eve.methods.patch import patch_internal
 from eve.render import render_xml
-from .utils import request_is_json, request_is_xml
+from .utils import get_post_by_id, request_is_json, request_is_xml
 from .attachments import get_attachment_dir
 
 services = Blueprint('services', __name__)
@@ -42,6 +44,58 @@ def types_item(name):
         abort(404)
     type_schema = json.loads(type_schema)
     return render_object_response(type_schema, 'item.html', title="Type: %s" % (name.capitalize(),))
+
+@services.route('/syndicate/<service>', methods=['POST'])
+def syndicate(service):
+    '''
+    Syndicate a post to the given service. Checks if the original post exists
+    and if it hasn't been syndicated to the given service already.
+    '''
+    # TODO: All of this stuff will probably end up living it its own file at
+    # `piss/syndication/twitter.py`
+    if service.lower() == 'twitter':
+        # Get the Twitter configuration
+        tw_conf = current_app.config.get('TWITTER', None)
+        if not tw_conf:
+            abort(400, '%s not configured on the server.' % service.lower().capitalize())
+        # TODO: We should probably abort if the `Content-Type` isn't
+        # `application/json`
+        data = request.json
+        entity = 'https://twitter.com/'
+        meta_post = current_app.config.get('META_POST')
+        post_type = os.path.join(meta_post['entity'], 'types', 'note')
+        # TODO: below would be better as a Cerberus validation
+        if not data['entity'] == entity:
+            abort(422, 'Incorrect entity for %s service.' % service)
+        if not data['type'] == post_type:
+            abort(422, 'Incorrect post type for %s service.' % service)
+        if 'post' not in data['links'][0]:
+            abort(422, 'Post ID not specified.')
+        if 'content' not in data or 'text' not in data['content']:
+            abort(422, 'Post content not found!')
+        # Get the post we want to syndicate
+        post_id = data['links'][0]['post']
+        post = get_post_by_id(post_id)
+        if not post:
+            abort(404)
+        # Grab the existing links from the post, if any
+        links = []
+        if 'links' in post:
+            links = post['links']
+            for link in links:
+                if link['entity'] == entity and link['type'] == 'syndication':
+                    abort(400, 'Post ID %s already syndicated to %s.' % (post_id, service))
+        # Create the twitter status and grab the permalink
+        twitter = Twython(tw_conf['app_key'], tw_conf['app_secret'], tw_conf['token'], tw_conf['token_secret'])
+        status = twitter.update_status(status=data['content']['text'])
+        url = os.path.join(entity, status['user']['screen_name'], 'status', status['id_str'])
+        # Append the syndication link and `PATCH` the original post
+        links.append({'entity': entity, 'type': 'syndication', 'url': url})
+        response, _, _, status = patch_internal('posts', {'links': links}, concurrency_check=False, **{'_id': post_id})
+        if status in (200, 201):
+            return render_object_response(response, 'item.html', title="Syndicate to %s" % (service.lower().capitalize(),))
+        abort(status)
+    abort(400, 'Service not recognized.')
 
 @services.route('/attachments/<digest>')
 def attachments(digest):
