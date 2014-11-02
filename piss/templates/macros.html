@@ -51,18 +51,18 @@
 
 {% macro render_attachment(pid, attachment) -%}
 	{% if 'image' in attachment['content_type'] %}
-	<img src="{{ url_for('services.post_attachment', pid=pid, name=attachment['name']) }}">
+	<img src="{{ url_for('attachments.post_attachment', pid=pid, name=attachment['name']) }}">
 	{% elif 'audio' in attachment['content_type'] %}
 	<audio type="attachment['content_type']" controls="controls">
-		<source src="{{ url_for('services.post_attachment', pid=pid, name=attachment['name']) }}" type="{{ attachment['content_type'] }}" />
+		<source src="{{ url_for('attachments.post_attachment', pid=pid, name=attachment['name']) }}" type="{{ attachment['content_type'] }}" />
 		Your browser does not support the audio element.
 	</audio>
 	{% elif 'video' in attachment['content_type'] %}
 	<video controls="controls">
-		<source src="{{ url_for('services.post_attachment', pid=pid, name=attachment['name']) }}" type="{{ attachment['content_type'] }}  " />
+		<source src="{{ url_for('attachments.post_attachment', pid=pid, name=attachment['name']) }}" type="{{ attachment['content_type'] }}  " />
 		Your browser does not support the audio element.
 	</video>
 	{% else %}
-	<a href="{{ url_for('services.post_attachment', pid=pid, name=attachment['name']) }}" title="{{ attachment['content_type'] }}">{{ attachment['name'] }}</a>
+	<a href="{{ url_for('attachments.post_attachment', pid=pid, name=attachment['name']) }}" title="{{ attachment['content_type'] }}">{{ attachment['name'] }}</a>
 	{% endif %}
 {%- endmacro %}

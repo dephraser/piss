@@ -21,7 +21,7 @@ def eve_override(app):
     @html_renderer_for('home')
     def home_wrapper():
         response = make_response(render_template('home.html'))
-        meta_post_link = str(url_for('services.meta', _external=True)) + '; rel="meta-post"'
+        meta_post_link = str(url_for('server_info.meta', _external=True)) + '; rel="meta-post"'
         response.headers.add('Link', meta_post_link)
         return response
 

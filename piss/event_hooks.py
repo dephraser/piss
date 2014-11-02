@@ -9,7 +9,7 @@ from flask import current_app, request, abort, url_for, Response, g
 from hawk.hcrypto import random_string
 from hawk.client import get_bewit as hawk_get_bewit
 from .utils import NewBase60, is_collection_request
-from .attachments import save_attachment
+from .file_io import save_attachment
 
 # Bewits are good for 1 hour
 BEWIT_TTL = 60 * 60
@@ -17,8 +17,8 @@ BEWIT_TTL = 60 * 60
 def before_insert_posts(documents):
     meta_post = current_app.config.get('META_POST')
     posts_endpoint = meta_post['server']['urls']['posts_feed']
-    app_type = str(url_for('services.types_item', name='app', _external=True))
-    credentials_type = str(url_for('services.types_item', name='credentials', _external=True))
+    app_type = str(url_for('server_info.types_item', name='app', _external=True))
+    credentials_type = str(url_for('server_info.types_item', name='credentials', _external=True))
     
     for document in documents:
         # Create version information, but save app version data if present
@@ -153,7 +153,7 @@ def after_POST_posts(request, payload):
     # TODO: Code below needs to account for when the payload is a list
     if payload.status_code == 201 and getattr(g, 'app_POST', False):
         link_header = ''
-        credentials_type = str(url_for('services.types_item', name='credentials', _external=True))
+        credentials_type = str(url_for('server_info.types_item', name='credentials', _external=True))
         if 'Link' in payload.headers:
             link_header = '%s,' % (payload.headers['Link'],)
         payload.headers['Link'] = link_header + '<%s>; rel="%s"' % (getattr(g, 'cred_bewit_url'), credentials_type)
