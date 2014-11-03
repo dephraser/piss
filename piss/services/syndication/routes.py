@@ -8,8 +8,9 @@ from flask import abort, Blueprint, current_app, request
 from eve.methods.patch import patch_internal
 from piss.services.utils import render_response
 from .twitter import twitter_handler
+from .fb import facebook_handler
 
-VALID_SERVICES = ('twitter',)
+VALID_SERVICES = ('twitter','facebook')
 syndication = Blueprint('syndication', __name__)
 
 

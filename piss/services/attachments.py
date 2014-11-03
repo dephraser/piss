@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+'''
+Attachments routes
+
+Routes use Eve's `getitem` to fetch attachment data, so authorization is
+handled automatically.
+'''
+
 from flask import abort, Blueprint, request, send_from_directory
 from eve.methods import getitem
 from piss.file_io import get_attachment_dir

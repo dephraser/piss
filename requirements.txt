@@ -7,6 +7,7 @@ Jinja2==2.7.3
 MarkupSafe==0.23
 -e git://github.com/jenmontes/PyHawk.git@develop#egg=PyHawk
 Werkzeug==0.9.6
+facebook-sdk==0.4.0
 gunicorn==18.0
 itsdangerous==0.24
 oauthlib==0.6.3
