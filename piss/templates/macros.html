@@ -13,11 +13,25 @@
 			<td colspan="2">
 				{% set outer_loop = loop %}
 				{% for value_item in value %}
+                {% if value_item is mapping or value_item is list %}
 				{{ key }}[{{ loop.index0 }}]:
 				<table class="ink-table">
 					{{ outer_loop(value_item.iteritems()) }}
 				</table>
 				{% if not loop.last %}<br />{% endif %}
+                {% else %}
+                {% if loop.first %}
+                {{ key }}:
+                <table class="ink-table">
+                {% endif %}
+                    <tr>
+    			        <td>[{{ loop.index0 }}]:</td>
+    			        <td><pre class="api-value">{{ value_item }}</pre></td>
+                    </tr>
+                {% if loop.last %}
+                </table>
+                {% endif %}
+                {% endif %}
 				{% endfor %}
 			</td>
 		{% else %}

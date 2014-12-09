@@ -1,14 +1,18 @@
 {
     "location": {
         "schema": {
-            "altitude": {
-                "type": "string"
+            "type": {
+                "type": "string",
+                "required": "true",
+                "allowed": ["Point"]
             },
-            "latitude": {
-                "type": "string"
-            },
-            "longitude": {
-                "type": "string"
+            "coordinates": {
+                "type": "list",
+                "required": "true",
+                "items": [
+                    {"type": "integer"},
+                    {"type": "integer"}
+                ]
             },
             "name": {
                 "type": "string"

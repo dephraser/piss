@@ -311,11 +311,24 @@ def recursive_input_data(data, schema, parent=""):
         elif schema[key]['type'] == 'list':
             value = []
             counter = 0
-            list_item = int(raw_input("%s[%d]: " % (key_string, counter,)))
-            while list_item:
+            get_input = True
+            list_type = 'string'
+            if 'schema' in schema[key]:
+                list_type = schema[key]['schema']['type']
+            
+            while get_input:
+                list_item = raw_input("%s[%d]: " % (key_string, counter,))
+                if not list_item:
+                    get_input = False
+                    break
+                
+                if 'items' in schema[key]:
+                    list_type = schema[key]['items'][counter]['type']
+                
+                if list_type == 'integer':
+                    list_item = int(list_item)
                 value.append(list_item)
                 counter += 1
-                list_item = int(raw_input("%s[%d]: " % (key_string, counter,)))
         
         if value:
             data[key] = value
@@ -324,25 +337,29 @@ def recursive_input_data(data, schema, parent=""):
 
 SUPPORTED_TYPES = {
     'note': {
-        'text': {
-            'type': 'string'
-        }, 
         'location': {
-            'type': 'dict', 
             'schema': {
-                'latitude': {
-                    'type': 'string'
-                }, 
-                'altitude': {
-                    'type': 'string'
+                'coordinates': {
+                    'items': [
+                        {'type': 'integer'}, 
+                        {'type': 'integer'}
+                    ], 
+                    'required': True, 
+                    'type': 'list'
                 }, 
                 'name': {
                     'type': 'string'
                 }, 
-                'longitude': {
+                'type': {
+                    'allowed': ['Point'], 
+                    'required': True, 
                     'type': 'string'
                 }
-            }
+            }, 
+            'type': 'dict'
+        }, 
+        'text': {
+            'type': 'string'
         }
     }
 }
