@@ -2,6 +2,7 @@
 
 import os
 import jinja2
+import CommonMark
 from flask import Flask, request, render_template, abort, url_for, make_response, send_from_directory
 from werkzeug.utils import secure_filename
 from eve.methods import get, getitem
@@ -16,7 +17,11 @@ def eve_override(app):
     # Set directory for HTML templates
     templates_path = os.path.join(CURRENT_DIR, 'templates')
     app.jinja_loader = jinja2.FileSystemLoader(templates_path)
-    
+
+    # Set the MarkDown -> HTML parser and renderer
+    parser = CommonMark.DocParser()
+    renderer = CommonMark.HTMLRenderer()
+
     # Routes
     @html_renderer_for('home')
     def home_wrapper():
@@ -59,7 +64,7 @@ def eve_override(app):
     # Override Eve's error handler functions
     for code in app.error_handler_spec[None]:
         app.error_handler_spec[None][code] = error_wrapper
-    
+
     # Create custom Jinja filters
     @app.template_filter('basename')
     def get_basename_from_path(path):
@@ -78,7 +83,15 @@ def eve_override(app):
             return basename
         else:
             return path
-    
+
+    @app.template_filter('parse_markdown')
+    def parse_markdown(text):
+        '''
+        Convert the given text to HTML with the parser and renderer we've set
+        up above.
+        '''
+        return renderer.render(parser.parse(text))
+
     # Jinja test for lists
     def is_list(value):
         return isinstance(value, list)
@@ -113,7 +126,7 @@ def eve_override(app):
                 return send_from_directory(theme_path, filename)
         static_path = os.path.join(CURRENT_DIR, 'static', path)
         return send_from_directory(static_path, filename)
-    
+
     # Set some additional headers for non-XML and non-JSON requests
     @app.after_request
     def process_response(response):

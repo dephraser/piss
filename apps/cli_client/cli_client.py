@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import requests
 from requests_toolbelt import MultipartEncoder
 import json

@@ -66,3 +66,7 @@
 	<a href="{{ url_for('attachments.post_attachment', pid=pid, name=attachment['name']) }}" title="{{ attachment['content_type'] }}">{{ attachment['name'] }}</a>
 	{% endif %}
 {%- endmacro %}
+
+{% macro markdown_as_html(text) -%}
+    {{ text|parse_markdown|safe }}
+{%- endmacro %}
