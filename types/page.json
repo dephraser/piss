@@ -1,0 +1,17 @@
+{
+    "title": {
+        "type": "string"
+    },
+    "slug": {
+        "type": "string"
+    },
+    "header": {
+        "type": "string"
+    },
+    "footer": {
+        "type": "string"
+    },
+    "body": {
+        "type": "string"
+    }
+}
