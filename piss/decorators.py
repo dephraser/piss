@@ -7,15 +7,13 @@ from piss.utils import request_is_xml, request_is_json, _resource
 
 # Outer decorator allows me to supply an argument
 def html_renderer_for(request_type):
-    # Set the appropriate Eve function to return based on the request type
-    if request_type == 'home':
-        eve_view_func = home_endpoint
-    elif request_type == 'resource':
-        eve_view_func = collections_endpoint
-    elif request_type == 'item':
-        eve_view_func = item_endpoint
-    elif request_type == 'error':
-        eve_view_func = error_endpoint
+    # Dict of appropriate Eve function to return based on the request type
+    eve_view_func = {
+        'home': home_endpoint,
+        'resource': collections_endpoint,
+        'item': item_endpoint,
+        'error': error_endpoint
+    }
     
     # The 'real' decorator that will determine whether a request should be
     # dispatched by the wrapper or by the Eve view function
@@ -24,7 +22,7 @@ def html_renderer_for(request_type):
         def wrapper(*args, **kwargs):
             # If the request is XML or JSON, return the Eve endpoint
             if request_is_xml() or request_is_json():
-                return eve_view_func(*args, **kwargs)
+                return eve_view_func[request_type](*args, **kwargs)
             
             # If the request is for the `item` or `resource` endpoints, get
             # the resource name and method and feed them to the HTML renderer
