@@ -121,7 +121,10 @@ def jinja_override(app):
         return send_from_directory(static_path, filename)
 
 def get_short_post_type(post):
-    return post['type'].rstrip('/').lstrip('/').split('/')[-1]
+    try:
+        return post['type'].rstrip('/').lstrip('/').split('/')[-1]
+    except KeyError:
+        return 'default'
 
 def get_post_template(post):
     return 'types/' + get_short_post_type(post) + '.html'

@@ -1,5 +1,9 @@
 {% macro get_item_title(obj) -%}
+    {% if '_id' in obj %}
     {{ obj['_id'] }}
+    {% else %}
+    {{ request.path|basename|capitalize }}
+    {% endif %}
 {%- endmacro %}
 
 {% macro get_item_body(obj) -%}
@@ -8,12 +12,16 @@
 {%- endmacro %}
 
 {% macro get_feed_item_title(obj) -%}
-    {{ obj['_id'] }}
+    {{ get_item_title(obj) }}
 {%- endmacro %}
 
 {% macro get_feed_item_body(obj) -%}
     <ul class="unstyled note">
+        {% if '_updated' in obj %}
         <li>Last Updated: {{ obj['_updated'] }}</li>
+        {% endif %}
+        {% if 'type' in obj %}
         <li>Type: {{ obj['type'] }}</li>
+        {% endif %}
     </ul>
 {%- endmacro %}
