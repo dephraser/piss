@@ -1,0 +1,35 @@
+{% macro get_item_title(obj) -%}
+    {{ obj['content']['title'] }}
+{%- endmacro %}
+
+{% macro get_item_body(obj) -%}
+    <h1>{{ get_item_title(obj) }}</h1>
+    {% if 'body' in obj['content'] %}
+    <article>
+        {{ macros.markdown_as_html(obj['content']['body']) }}
+    </article>
+    {% endif %}
+    {% if 'attachments' in obj %}
+    {% for attachment in obj['attachments'] %}
+    <div>
+        {{ macros.render_attachment(obj['_id'], attachment) }}
+    </div>
+    {% endfor %}
+    <br />
+    {% endif %}
+    {{ macros.create_table_from_object(obj) }}
+{%- endmacro %}
+
+{% macro get_feed_item_title(obj) -%}
+    {{ obj['content']['title'] }}
+{%- endmacro %}
+
+{% macro get_feed_item_body(obj) -%}
+    <article>
+        {% if 'excerpt' in obj['content'] %}
+        {{ macros.markdown_as_html(obj['content']['excerpt']) }}
+        {% else %}
+        {{ macros.markdown_as_html(obj['content']['body'])|truncate(255, True) }}
+        {% endif %}
+    </article>
+{%- endmacro %}

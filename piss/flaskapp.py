@@ -12,6 +12,7 @@ from .event_hooks import before_insert_posts, before_update_posts, \
     after_POST_posts
 from .services import attachments, server_info, syndication
 from .eve_override import eve_override
+from .jinja_override import jinja_override
 
 
 def PISS(instance_path):
@@ -82,7 +83,10 @@ def PISS(instance_path):
     app.register_blueprint(server_info)
     app.register_blueprint(syndication)
 
-    # Override some of Eve's default methods in order to also handle HTML requests
+    # Override some of Eve's default methods in order to handle HTML requests
     eve_override(app)
-    
+
+    # Override Jinja defaults, filters, and template loaders
+    jinja_override(app)
+
     return app

@@ -1,0 +1,19 @@
+{% macro get_item_title(obj) -%}
+    {{ obj['_id'] }}
+{%- endmacro %}
+
+{% macro get_item_body(obj) -%}
+    <h1>{{ get_item_title(obj) }}</h1>
+    {{ macros.create_table_from_object(obj) }}
+{%- endmacro %}
+
+{% macro get_feed_item_title(obj) -%}
+    {{ obj['_id'] }}
+{%- endmacro %}
+
+{% macro get_feed_item_body(obj) -%}
+    <ul class="unstyled note">
+        <li>Last Updated: {{ obj['_updated'] }}</li>
+        <li>Type: {{ obj['type'] }}</li>
+    </ul>
+{%- endmacro %}

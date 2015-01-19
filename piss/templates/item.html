@@ -1,7 +1,8 @@
     {% extends "layout.html" %}
-	{% import 'macros.html' as macros %}
-	{% if title %}
-		{% set page_title = title %}
+    {% import 'macros.html' as macros %}
+    {% set page_title = get_item_title(obj) %}
+	{% if page_title %}
+		{# Do nothing! #}
 	{% elif '_id' in obj %}
 		{% set page_title = 'Post: ' + obj['_id'] %}
 	{% elif 'version' in request.args %}
@@ -11,6 +12,5 @@
 	{% endif %}
     {% block title %}{{ page_title }}{% endblock %}
     {% block body %}
-		<h1>{{ page_title }}</h1>
-		{{ macros.create_table_from_object(obj) }}
+        {{ get_item_body(obj, macros) }}
     {% endblock %}

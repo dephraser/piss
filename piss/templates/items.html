@@ -1,10 +1,6 @@
     {% extends "layout.html" %}
 	{% import 'macros.html' as macros %}
-	{% if title %}
-		{% set page_title = title %}
-	{% else %}
-		{% set page_title = request.path|basename|capitalize %}
-	{% endif %}
+	{% set page_title = request.path|basename|capitalize %}
     {% if not feed_url %}
         {% set feed_url = config['META_POST']['server']['urls']['posts_feed'] %}
     {% endif %}
@@ -14,12 +10,9 @@
 		{% if obj|length %}
 		<dl>
 		{% for item in obj %}
-			<dt><a href="{{ feed_url }}/{{ item['_id'] }}">{{ item['_id'] }}</a></dt>
+			<dt><a href="{{ feed_url }}/{{ item['_id'] }}">{{ get_feed_item_title(item) }}</a></dt>
 			<dd>
-                <ul class="unstyled note">
-                    <li>Last Updated: {{ item['_updated'] }}</li>
-                    <li>Type: {{ item['type'] }}</li>
-                </ul>
+                {{ get_feed_item_body(item, macros) }}
 			</dd>
 		{% endfor %}
 		</dl>
