@@ -32,7 +32,6 @@ from .utils import is_duplicate_syndication, validate_service
 
 FACEBOOK_ENTITY = 'https://www.facebook.com/'
 SCOPE = 'publish_actions,rsvp_event,user_actions.news,user_actions.video,user_events,user_friends,user_likes,user_location,user_photos,user_status,user_tagged_places,user_videos,user_groups,read_friendlists,read_mailbox,read_stream,manage_notifications'
-REDIRECT_URI = 'http://192.168.0.2.xip.io/'
 
 
 def facebook_handler(data, server_entity):
@@ -88,27 +87,27 @@ def create_status_post(message):
     return url
 
 
-def oauth_authorize(client_id):
+def oauth_authorize(client_id, redirect_uri):
     '''
     Return the URL of a page that will let the user authorize permissions for
     the app.
     '''
     args = {
         'client_id': client_id,
-        'redirect_uri': REDIRECT_URI,
+        'redirect_uri': redirect_uri,
         'scope': SCOPE
     }
     return 'https://graph.facebook.com/oauth/authorize?%s' % urllib.urlencode(args)
 
 
-def oauth_access_token(client_id, client_secret, code):
+def oauth_access_token(client_id, client_secret, code, redirect_uri):
     '''
     Given an authorization code, get the access token.
     '''
     args = {
         'client_id': client_id,
         'client_secret': client_secret,
-        'redirect_uri': REDIRECT_URI,
+        'redirect_uri': redirect_uri,
         'code': code
     }
     response = requests.get('https://graph.facebook.com/oauth/access_token?%s' % urllib.urlencode(args))
