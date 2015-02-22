@@ -112,4 +112,4 @@ def oauth_access_token(client_id, client_secret, code, redirect_uri):
     }
     response = requests.get('https://graph.facebook.com/oauth/access_token?%s' % urllib.urlencode(args))
     data = cgi.parse_qs(response.text)
-    return (data['access_token'], int(time.time()) + int(data['expires']))
+    return (data['access_token'][0], int(time.time()) + int(data['expires'][0]))
