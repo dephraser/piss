@@ -1,6 +1,6 @@
-Cerberus==0.7.2
+Cerberus==0.8
 CommonMark==0.5.4
--e git://github.com/nicolaiarocci/eve.git@develop#egg=Eve
+Eve==0.5.1
 Events==0.2.1
 Flask==0.10.1
 Flask-PyMongo==0.3.0
@@ -8,14 +8,15 @@ Jinja2==2.7.3
 MarkupSafe==0.23
 -e git://github.com/jenmontes/PyHawk.git@develop#egg=PyHawk
 Werkzeug==0.9.6
+click==3.3
 facebook-sdk==0.4.0
 gunicorn==18.0
 itsdangerous==0.24
 oauthlib==0.6.3
-pymongo==2.7.1
+pymongo==2.8
 requests==2.1.0
 requests-oauthlib==0.4.0
 requests-toolbelt==0.3.1
-simplejson==3.5.2
+simplejson==3.6.5
 twython==3.1.2
 wsgiref==0.1.2
