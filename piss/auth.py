@@ -1,10 +1,28 @@
 # -*- coding: utf-8 -*-
 
+from functools import wraps
 from eve.auth import HMACAuth
 from flask import current_app, request, g
 import hawk
 from hawk.util import HawkException
 from .utils import get_post_by_id, is_collection_path
+
+
+def requires_auth():
+    '''
+    Enables Authorization logic for decorated functions.
+    '''
+    def fdec(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            resource_name = resource = roles = None
+            auth = current_app.auth
+            if not auth.authorized(roles, resource_name, request.method):
+                return auth.authenticate()
+            return f(*args, **kwargs)
+        return decorated
+    return fdec
+
 
 def get_credentials_from_post_id(cid):
     '''

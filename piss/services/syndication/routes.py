@@ -6,6 +6,7 @@ Syndication Routes
 
 from flask import abort, Blueprint, current_app, request
 from eve.methods.patch import patch_internal
+from piss.auth import requires_auth
 from piss.services.utils import render_response
 from .twitter import twitter_handler
 from .fb import facebook_handler
@@ -15,6 +16,7 @@ syndication = Blueprint('syndication', __name__)
 
 
 @syndication.route('/syndicate/<service>', methods=['POST'])
+@requires_auth()
 def syndicate(service):
     '''
     Syndicate a post to the given service. Checks if the original post exists
