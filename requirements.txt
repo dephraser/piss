@@ -12,11 +12,11 @@ click==3.3
 facebook-sdk==0.4.0
 gunicorn==18.0
 itsdangerous==0.24
-oauthlib==0.6.3
+oauthlib==0.7.2
 pymongo==2.8
-requests==2.1.0
-requests-oauthlib==0.4.0
+requests==2.5.2
+requests-oauthlib==0.4.2
 requests-toolbelt==0.3.1
 simplejson==3.6.5
-twython==3.1.2
+twython==3.2.0
 wsgiref==0.1.2
