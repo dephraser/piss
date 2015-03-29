@@ -4,6 +4,7 @@ import os
 import jinja2
 import CommonMark
 from flask import send_from_directory
+from flask.templating import TemplateNotFound
 from werkzeug.utils import secure_filename
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -60,19 +61,19 @@ def jinja_override(app):
     @app.context_processor
     def template_type_processor():
         def get_item_title(obj):
-            t = app.jinja_env.get_template(get_post_template(obj))
+            t = get_app_template(app, get_post_template(obj))
             mod = t.make_module()
             return mod.get_item_title(obj)
         def get_item_body(obj, macros):
-            t = app.jinja_env.get_template(get_post_template(obj))
+            t = get_app_template(app, get_post_template(obj))
             mod = t.make_module({'macros': macros})
             return mod.get_item_body(obj)
         def get_feed_item_title(obj):
-            t = app.jinja_env.get_template(get_post_template(obj))
+            t = get_app_template(app, get_post_template(obj))
             mod = t.make_module()
             return mod.get_feed_item_title(obj)
         def get_feed_item_body(obj, macros):
-            t = app.jinja_env.get_template(get_post_template(obj))
+            t = get_app_template(app, get_post_template(obj))
             mod = t.make_module({'macros': macros})
             return mod.get_feed_item_body(obj)
         return dict(get_item_title=get_item_title,
@@ -129,9 +130,18 @@ def jinja_override(app):
 
 def get_short_post_type(post):
     try:
-        return post['type'].rstrip('/').lstrip('/').split('/')[-1]
+        return post['type'].strip('/').split('/')[-1]
     except KeyError:
         return 'default'
 
 def get_post_template(post):
-    return 'types/' + get_short_post_type(post) + '.html'
+    return get_type_template(get_short_post_type(post))
+
+def get_type_template(template_type):
+    return 'types/' + template_type + '.html'
+
+def get_app_template(app, template_path):
+    try:
+        return app.jinja_env.get_template(template_path)
+    except TemplateNotFound:
+        return app.jinja_env.get_template(get_type_template('default'))
