@@ -30,7 +30,7 @@ from flask import abort, current_app
 from piss.utils import get_post_by_id
 from .utils import is_duplicate_syndication, validate_service
 
-FACEBOOK_ENTITY = 'https://www.facebook.com/'
+FACEBOOK_ENTITY = 'https://www.facebook.com'
 SCOPE = 'publish_actions,rsvp_event,user_actions.news,user_actions.video,user_events,user_friends,user_likes,user_location,user_photos,user_status,user_tagged_places,user_videos,user_groups,read_friendlists,read_mailbox,read_stream,manage_notifications'
 
 
