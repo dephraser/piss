@@ -58,9 +58,22 @@ def facebook_handler(data, server_entity):
         links = post['links']
     if is_duplicate_syndication(links, FACEBOOK_ENTITY):
         abort(400, 'Post ID %s already syndicated to Facebook.' % (post_id,))
+    # Grab information for attachments, if any. Make sure they're only the kind
+    # that Twitter accepts and use only the first 4.
+    attachments = []
+    if 'attachments' in post:
+        attachments = post['attachments']
+    attachments = [x for x in attachments if x['content_type']\
+                   in ('image/gif', 'image/jpeg', 'image/png')]
+    if len(attachments) > 1:
+        attachments = attachments[0:1]
+    if attachments:
+        attachments = [os.path.join(server_entity,
+                                    post['_links']['self']['href'],
+                                    x['name']) for x in attachments]
     # Create the Facebook status and grab the permalink
     try:
-        url = create_status_post(data['content']['text'])
+        url = create_status_post(data['content']['text'], attachments)
     except facebook.GraphAPIError as e:
         abort(400, str(e))
     # Append the syndication link and `PATCH` the original post
@@ -69,20 +82,28 @@ def facebook_handler(data, server_entity):
     return (post_id, links)
 
 
-def create_status_post(message):
+def create_status_post(message, attachments=None):
     '''
     Create a Facebook status post.
 
     :param status: the text of the Facebook post.
+    :param attachments: optional list of URLs to media attachments.
     :returns: permalink to the status post.
     '''
     # Get the Facebook configuration
     fb_conf = current_app.config.get('FACEBOOK', None)
     if not fb_conf:
         abort(400, 'Facebook not configured on the server.')
+    data = {'message': message}
+    edge = 'feed'
+    r_key = 'id'
+    if attachments:
+        edge = 'photos'
+        data['url'] = attachments[0]
+        r_key = 'post_id'
     graph = facebook.GraphAPI(fb_conf['access_token'])
-    response = graph.put_object("me", "feed", message=message)
-    user_id, post_id = response['id'].split('_')
+    response = graph.put_object("me", edge, **data)
+    user_id, post_id = response[r_key].split('_')
     url = 'https://www.facebook.com/%s/posts/%s' % (user_id, post_id)
     return url
 
