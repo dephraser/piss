@@ -68,8 +68,7 @@ def facebook_handler(data, server_entity):
     if len(attachments) > 1:
         attachments = attachments[0:1]
     if attachments:
-        attachments = [os.path.join(server_entity,
-                                    post['_links']['self']['href'],
+        attachments = [os.path.join(server_entity, 'posts', post['_id'],
                                     x['name']) for x in attachments]
     # Create the Facebook status and grab the permalink
     try:
