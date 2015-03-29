@@ -48,14 +48,6 @@
                         "required": true,
                         "type": "string"
                     },
-                    "oauth_auth": {
-                        "required": true,
-                        "type": "string"
-                    },
-                    "oauth_token": {
-                        "required": true,
-                        "type": "string"
-                    },
                     "post": {
                         "required": true,
                         "type": "string"
