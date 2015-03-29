@@ -45,6 +45,13 @@ def jinja_override(app):
         up above.
         '''
         return renderer.render(parser.parse(text))
+    
+    @app.template_filter('strip_slashes')
+    def strip_slashes(text):
+        '''
+        Strip any leading or trailing slashes from a text.
+        '''
+        return text.strip('/')
 
     # Add variables to the Jinja context
     # TODO: Add try... except clauses to the return statement on all of these

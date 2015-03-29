@@ -1,13 +1,13 @@
-Cerberus==0.8
+Cerberus==0.8.1
 CommonMark==0.5.4
-Eve==0.5.1
+Eve==0.5.3
 Events==0.2.1
 Flask==0.10.1
 Flask-PyMongo==0.3.0
 Jinja2==2.7.3
 MarkupSafe==0.23
 -e git://github.com/jenmontes/PyHawk.git@develop#egg=PyHawk
-Werkzeug==0.9.6
+Werkzeug==0.10.4
 click==3.3
 facebook-sdk==0.4.0
 gunicorn==18.0

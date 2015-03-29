@@ -83,7 +83,7 @@
         {% if links %}
 		    <ul class="unstyled inline quarter-vertical-space">
 				{% for key in links %}
-				<li><a href="{{ links[key]['href'] }}" title="{{ links[key]['title']|capitalize }}">{{ key|capitalize }}</a></li>
+				<li><a href="/{{ links[key]['href']|strip_slashes }}" title="{{ links[key]['title']|capitalize }}">{{ key|capitalize }}</a></li>
 				{% endfor %}
 		    </ul>
 		{% endif %}
