@@ -56,6 +56,9 @@ def cli(ctx):
 @click.option('--public', default=False, is_flag=True, help='Create a public post.')
 @click.option('--file', default=None, help='Attachment for the post.')
 def new(ctx, post_type, public, file):
+    '''
+    Creates a new post of the given type.
+    '''
     if post_type not in SUPPORTED_TYPES:
         click.echo("Post type not found. Check 'types' to see available post types.")
         return False
@@ -90,6 +93,9 @@ def new(ctx, post_type, public, file):
 @click.option('--page', default=0, help='Display the specified page of posts.')
 @click.option('--public', default=False, is_flag=True, help='Display only public posts.')
 def get(ctx, url, post_id, page, public):
+    '''
+    Retrieve the given post ID.
+    '''
     if url:
         ctx['url'] = url
     if public:
@@ -113,6 +119,9 @@ def get(ctx, url, post_id, page, public):
 @click.argument('post_id', default=None, required=False)
 @click.option('--url', default='', help='URL being requested.')
 def head(ctx, url, post_id):
+    '''
+    Perform a HEAD request on the given post ID.
+    '''
     if url:
         ctx['url'] = url
     if post_id:
@@ -129,6 +138,9 @@ def head(ctx, url, post_id):
 @click.argument('data')
 @click.option('--url', default='', help='URL being POSTed to.')
 def post(ctx, url, data):
+    '''
+    Perform a POST request with the given data.
+    '''
     if url:
         ctx['url'] = url
     res = requests.post(ctx['url'], data=data, headers=get_request_headers(ctx['url'], 'POST', ctx['credentials']))
@@ -141,6 +153,9 @@ def post(ctx, url, data):
 @click.argument('data')
 @click.option('--url', default='', help='URL being POSTed to.')
 def patch(ctx, url, post_id, data):
+    '''
+    Perform a PATCH with a post ID and data.
+    '''
     if not url and not post_id:
         click.echo('A URL or post ID must be provided.')
         return False
@@ -162,6 +177,9 @@ def patch(ctx, url, post_id, data):
 @click.argument('post_id', default=None, required=False)
 @click.option('--url', default='', help='URL being POSTed to.')
 def delete(ctx, url, post_id):
+    '''
+    Perform a DELETE request on a given post ID.
+    '''
     if not url and not post_id:
         click.echo('A URL or post ID must be provided.')
         return False
@@ -183,6 +201,9 @@ def delete(ctx, url, post_id):
 @click.argument('url')
 @click.option('--ttl', default=60, show_default=True, help='Duration of bewit in minutes.')
 def bewit(ctx, url, ttl):
+    '''
+    Create a bewit for the given URL.
+    '''
     url = url.rstrip('/')
     if url == ctx['meta_post']['server']['urls']['posts_feed'] or url == ctx['meta_post']['entity']:
         click.echo("Use bewits only for specific posts!")
@@ -197,6 +218,9 @@ def bewit(ctx, url, ttl):
 @cli.command()
 @click.pass_obj
 def types(ctx):
+    '''
+    List the available post types at this entity.
+    '''
     click.echo("Types available for this entity:")
     for key in SUPPORTED_TYPES:
         click.echo("  * %s" % (key,))
@@ -206,6 +230,9 @@ def types(ctx):
 @click.argument('url')
 @click.pass_obj
 def register(ctx, url):
+    '''
+    Register this application at an entity URL.
+    '''
     if register_app(url, os.path.join(ctx['current_dir'],
                     ctx['config_file'])):
         click.echo('Registration success!')
