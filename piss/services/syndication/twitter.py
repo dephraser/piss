@@ -23,7 +23,7 @@ from piss.file_io import get_attachment_file
 from piss.utils import get_post_by_id
 from .utils import is_duplicate_syndication, validate_service
 
-TWITTER_ENTITY = 'https://twitter.com/'
+TWITTER_ENTITY = 'https://twitter.com'
 
 
 def twitter_handler(data, server_entity):
