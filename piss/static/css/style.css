@@ -42,6 +42,9 @@ html, body {
     margin: 0 auto -9em;
     overflow: auto;
 }
+.ink-grid > article {
+    overflow: auto;
+}
 .push, footer {
     height: 9em;
     margin-top: 0;
@@ -60,6 +63,10 @@ footer * {
 }
 .top-menu {
     background: #1a1a1a;
+}
+
+table.ink-table {
+    table-layout: fixed;
 }
 
 table.ink-table > tbody > tr > td {
@@ -82,8 +89,8 @@ table.ink-table table.ink-table {
 
 .api-value {
 	margin: 0;
-	white-space:pre-wrap;
-	overflow: hidden;
+	white-space: pre-wrap;
+	overflow: auto;
 }
 
 /* for xlarge screens */
