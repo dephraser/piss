@@ -88,6 +88,55 @@ def new(ctx, post_type, public, file):
 
 @cli.command()
 @click.pass_obj
+@click.argument('service')
+@click.argument('post_id')
+@click.argument('message', default=None, required=False)
+def syndicate(ctx, service, post_id, message):
+    '''
+    Syndicate a post to the given service.
+    '''
+    SERVICES = {
+        'twitter': 'https://twitter.com',
+        'facebook': 'https://www.facebook.com'
+    }
+    try:
+        synd_entity = SERVICES[service]
+    except KeyError:
+        click.echo('The service "%s" is not available.' % (service,))
+        return False
+    ctx['url'] = os.path.join(ctx['url'], post_id)
+
+    # Syndicated posts MUST be public
+    res = requests.get(ctx['url'],
+                       headers=get_request_headers(ctx['url'], 'GET', None))
+    status_code = int(res.status_code)
+    if status_code < 200 or status_code >= 300:
+        click.echo('Post not accessible. Status: %d' % (status_code,))
+        return False
+    post = res.json()
+
+    entity = ctx['meta_post']['entity']
+    post_type = post['type']
+    if message:
+        post_type = os.path.join(entity, 'types', 'note')
+    else:
+        message = post['content']['text']
+    data = {
+        'entity': synd_entity,
+        'type': post_type,
+        'content': {
+            'text': message
+        },
+        'links': [{'post': post['_id']}]
+    }
+    synd_url = os.path.join(entity, 'syndicate', service)
+    headers = get_request_headers(synd_url, 'POST', ctx['credentials'])
+    res = requests.post(synd_url, data=json.dumps(data), headers=headers)
+    response_handler(res)
+
+
+@cli.command()
+@click.pass_obj
 @click.argument('post_id', default=None, required=False)
 @click.option('--url', default='', help='URL being requested.')
 @click.option('--page', default=0, help='Display the specified page of posts.')
