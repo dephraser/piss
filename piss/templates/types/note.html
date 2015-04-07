@@ -3,7 +3,7 @@
 {%- endmacro %}
 
 {% macro get_item_body(obj) -%}
-    <h1>{{ get_item_title(obj) }}</h1>
+    <h3>{{ get_item_title(obj) }}</h3>
     {% if 'text' in obj['content'] %}
     <article>
         {{ macros.markdown_as_html(obj['content']['text']) }}
