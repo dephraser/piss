@@ -12,4 +12,4 @@ instance_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'insta
 app = PISS(instance_path=instance_path)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
