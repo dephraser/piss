@@ -42,27 +42,39 @@ html, body {
     margin: 0 auto -9em;
     overflow: auto;
 }
-.ink-grid > article {
+#main-content {
     overflow: auto;
 }
-.push, footer {
+.push, #bottom-menu {
     height: 9em;
     margin-top: 0;
 }
-.footer-nav {
+#top-menu > nav, #main-content, #footer-nav, .footer-wrap {
+    max-width: 52em;
+}
+#footer-nav {
 	height: 3em;
 }
-.footer-info {
+#footer-info {
 	height: 6em;
     background: #ccc;
     border: 0;
 	overflow: auto;
 }
-footer * {
+.footer-wrap {
+    margin-left: auto;
+    margin-right: auto;
+}
+#bottom-menu * {
     line-height: inherit;
 }
-.top-menu {
+#top-menu {
     background: #1a1a1a;
+}
+
+.page-layout{
+    padding-left: 0;
+    padding-right: 0;
 }
 
 table.ink-table {

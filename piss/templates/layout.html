@@ -50,36 +50,36 @@
     <!-- Add your site or application content here -->
 
     <div class="wrap">
-        <div class="top-menu">
+        <header id="top-menu">
             <nav class="ink-navigation ink-grid">
-				<div class="column-group">
-					<div class="all-33 small-100">
-	                    <ul class="menu horizontal black">
-	                        <li class="active"><a href="{{url_for('home')}}">{{ config['META_POST']['profile']['name'] }}</a></li>
-	                    </ul>
-					</div>
-					<div class="all-66 small-100">
-						{% if config['MENU_ITEMS'] %}
-						{% set posts_url = config['META_POST']['server']['urls']['posts_feed'] + '/' %}
-	                    <ul class="menu horizontal black medium-push-right large-push-right xlarge-push-right">
-							{% for menu_item in config['MENU_ITEMS'] %}
+                <div class="column-group">
+                    <div class="all-33 small-100">
+                        <ul class="menu horizontal black">
+                            <li class="active"><a href="{{url_for('home')}}">{{ config['META_POST']['profile']['name'] }}</a></li>
+                        </ul>
+                    </div>
+                    <div class="all-66 small-100">
+                        {% if config['MENU_ITEMS'] %}
+                        {% set posts_url = config['META_POST']['server']['urls']['posts_feed'] + '/' %}
+                        <ul class="menu horizontal black medium-push-right large-push-right xlarge-push-right">
+                            {% for menu_item in config['MENU_ITEMS'] %}
                             {% set where_clause = '%22type%22:%22' + menu_item.type + '%22' %}
-	                        <li><a href="{{ config['META_POST']['entity'] }}/posts?where={{ '{' }}{{ where_clause }}{{ '}' }}">{{ menu_item.resource_title|capitalize }}</a></li>
-							{% endfor %}
-							<li><a href="{{ posts_url }}">Everything</a></li>
-	                    </ul>
-						{% endif %}
-					</div>
-				</div>
+                            <li><a href="{{ config['META_POST']['entity'] }}/posts?where={{ '{' }}{{ where_clause }}{{ '}' }}">{{ menu_item.resource_title|capitalize }}</a></li>
+                            {% endfor %}
+                            <li><a href="{{ posts_url }}">Everything</a></li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
             </nav>
-        </div>
-		<div class="ink-grid vertical-space">
+        </header>
+		<div id="main-content" class="ink-grid vertical-space">
 			{% block body %}{% endblock %}
 		</div>
 		<div class="push"></div>
 	</div>
-    <footer class="clearfix">
-		<div class="ink-grid footer-nav">
+    <footer id="bottom-menu" class="clearfix">
+		<div id="footer-nav" class="ink-grid">
         {% if links %}
 		    <ul class="unstyled inline quarter-vertical-space">
 				{% for key in links %}
@@ -88,13 +88,19 @@
 		    </ul>
 		{% endif %}
 		</div>
-        <div class="ink-grid footer-info">
-            <ul class="unstyled inline quarter-vertical-space">
-                <li class="active"><a href="#">About</a></li>
-                <li><a href="#">Sitemap</a></li>
-                <li><a href="#">Contacts</a></li>
-            </ul>
-            <p class="note">Identification of the owner of the copyright, either by name, abbreviation, or other designation by which it is generally known.</p>
+        <div id="footer-info" class="ink-grid">
+            <div class='footer-wrap'>
+                {% if 'cards' in config['META_POST']['profile'] %}
+                <ul class="unstyled inline quarter-vertical-space">
+                    {% for card in config['META_POST']['profile']['cards'] %}
+                    {% if card['type'] == 'rel-me' %}
+                    <li><a href="{{ card['datum'] }}" rel="me">{{ card['name'] }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <p class="note">{{ config['FOOTER_TEXT']|safe }}</p>
+            </div>
         </div>
     </footer>
 	{% block footer %}{% endblock %}

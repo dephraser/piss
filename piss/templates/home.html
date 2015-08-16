@@ -4,15 +4,17 @@
 		<link href="{{ url_for('server_info.meta') }}" rel="server-meta"/>
 	{% endblock %}
     {% block body %}
-		<h1>Home</h1>
-		<p>There's not much here yet.</p>
-	    {% if 'cards' in config['META_POST']['profile'] %}
-        <ul>
-            {% for card in config['META_POST']['profile']['cards'] %}
-			{% if card['type'] == 'rel-me' %}
-            <li><a href="{{ card['datum'] }}" rel="me">{{ card['name'] }}</a></li>
-			{% endif %}
-            {% endfor %}
-        </ul>
-        {% endif %}
+        <div class="ink-grid page-layout">
+            <div class="column-group horizontal-gutters">
+                <div class="all-50">
+                    <h3>{{ config['HOME_TITLE'] }}</h3>
+                    <p class="large">{{ config['HOME_TEXT'] }}</p>
+                </div>
+                <div class="all-50">
+                    <figure>
+                        <img src="{{ config['HOME_PHOTO'] }}" alt="Portrait photo">
+                    </figure>
+                </div>
+            </div>
+        </div>
     {% endblock %}
